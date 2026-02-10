@@ -1,0 +1,70 @@
+/* ===== ТАБЛИЦА ===== */
+.table-container {
+  overflow-x: auto;
+  width: 100%;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table-base {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 640px;
+}
+
+.table-header-row {
+  background: rgba(99, 102, 241, 0.1);
+  transition: background var(--transition-base);
+}
+
+.table-header-cell {
+  padding: var(--space-4);
+  text-align: left;
+  font-weight: 600;
+  color: var(--text-primary);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all var(--transition-base);
+  white-space: nowrap;
+  min-width: 100px;
+}
+
+.table-body-row {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all var(--transition-base);
+  will-change: transform, opacity;
+}
+
+.table-body-row:hover {
+  background: rgba(99, 102, 241, 0.05);
+  transform: translateX(4px);
+}
+
+.table-body-cell {
+  padding: var(--space-4);
+  transition: all var(--transition-base);
+  white-space: nowrap;
+}
+
+/* Кастомный скроллбар для таблиц */
+.table-container::-webkit-scrollbar {
+  height: 6px;
+}
+
+.table-container::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+  background: rgba(99, 102, 241, 0.5);
+  border-radius: 3px;
+}
+
+.table-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(99, 102, 241, 0.7);
+}
+
+/* ===== СТАТУСЫ ===== */
+.status-alive { color: var(--text-primary); }
+.status-dead { color: var(--text-primary); }
+.status-lost { color: var(--text-primary); }
+.status-left { color: var(--text-primary); }

@@ -1,0 +1,86 @@
+УДАЛИТЬ НА ПРОДЕ
+[#Многострочный
+заголовок
+collapsible](
+Скрытый контент
+на несколько строк
+с **жирным** текстом
+и [первой строкой](#тест)
+второй строкой)
+
+[%Многострочное
+описание
+изображения](images/guides/aurora.png)
+
+[?Многострочная
+подсказка](
+Подробное описание
+на нескольких
+строках)
+
+[$Текст ссылки
+на несколько
+строк](
+https://example.com)
+
+Bold
+**Your text**
+
+italics
+*Your text*, _Your text_
+
+Strikethrough
+~~Your text~~
+
+Underline
+__Your text__
+
+Bold italics
+***Your text***
+
+Underline italics
+__*Your text*__
+
+Underline bold
+__**Your text**__
+
+Bold underline italics
+__***Your text***__
+
+Big header
+# Your text
+
+Medium header
+## Your text
+
+Small header
+### Your text
+
+Subtext
+-# Your text
+
+Lists:
+– Your text (1)
+– Your text (2)
+
+Spoilers
+||Your text||
+
+Masked links
+[Your text](https://www.youtube.com/watch?v=ZT1PRLiJmH8)
+
+[$Текст с гиперссылкой](https://www.youtube.com/watch?v=ZT1PRLiJmH8)
+
+[%Текст под картинкой](images/guides/aurora.png)
+
+Full divider
+-----
+
+Divider
+---
+
+Collapsible sections
+[#Текст который виден если кнопка не нажата](Текст который [?раскрывается](TEST) если нажать на кнопку)
+
+Hint
+[?Простой текст](Подсказка которая вылазиет если навестись на текст)

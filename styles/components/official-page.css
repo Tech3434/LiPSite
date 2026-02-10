@@ -1,0 +1,233 @@
+/* ===== СТИЛИ ДЛЯ ГЛАВНОЙ СТРАНИЦЫ (official_info) ===== */
+
+.official-info-wrapper {
+  width: 100%;
+  padding: var(--space-12) 0;
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%) !important;
+  border-radius: var(--radius-xl);
+  margin: var(--space-6) 0;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.official-content {
+  max-width: none !important;
+  width: 100%;
+  padding: 0 var(--space-6);
+}
+
+/* Заголовки */
+.official-content h4 {
+  font-size: var(--size-4xl) !important;
+  font-weight: 800;
+  margin-top: var(--space-8) !important;
+  margin-bottom: var(--space-4) !important;
+  color: #ffffff !important;
+  text-align: left !important;
+  padding-bottom: var(--space-2);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.official-content h5 {
+  font-size: var(--size-3xl) !important;
+  font-weight: 700;
+  margin-top: var(--space-6) !important;
+  margin-bottom: var(--space-3) !important;
+  color: #ffffff !important;
+  text-align: left !important;
+  padding-bottom: var(--space-2);
+}
+
+.official-content h6 {
+  font-size: var(--size-2xl) !important;
+  font-weight: 600;
+  margin-top: var(--space-5) !important;
+  margin-bottom: var(--space-3) !important;
+  color: #ffffff !important;
+  text-align: left !important;
+  padding-bottom: var(--space-2);
+}
+
+/* Основной текст */
+.official-content p {
+  color: #ffffff !important;
+  text-align: justify;
+  line-height: 1.8;
+  font-size: var(--size-lg);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+}
+
+/* Списки */
+.official-content ul {
+  margin: var(--space-4) 0;
+  padding-left: var(--space-6);
+  padding: var(--space-4);
+}
+
+.official-content li {
+  margin-bottom: var(--space-3);
+  color: #ffffff !important;
+  line-height: 1.6;
+  padding: var(--space-1) var(--space-2);
+}
+
+.official-content li:last-child {
+  border-bottom: none;
+}
+
+/* Ссылки на главной */
+.official-content a,
+.official-content .link-masked {
+  color: #8b0000 !important;
+  text-decoration: underline;
+  font-weight: 600;
+  transition: all var(--transition-fast);
+  padding: 0 var(--space-1);
+  border-radius: var(--radius-sm);
+}
+
+.official-content a:hover,
+.official-content .link-masked:hover {
+  color: #ffffff !important;
+  background-color: #8b0000;
+  text-decoration: none;
+}
+
+/* Форматирование текста */
+.official-content strong {
+  color: #ffffff !important;
+  font-weight: 700;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.official-content em {
+  color: #cccccc !important;
+  font-style: italic;
+}
+
+.official-content u {
+  color: #ffffff !important;
+  text-decoration: underline;
+  text-decoration-color: #8b0000;
+  text-decoration-thickness: 2px;
+}
+
+.official-content s {
+  color: #888888 !important;
+  text-decoration: line-through;
+  text-decoration-color: #8b0000;
+}
+
+/* Разделители - оставлены только базовые стили, тема из themes.css */
+.official-content .full-divider {
+  background: linear-gradient(to right, 
+    transparent, 
+    rgba(139, 0, 0, 0.7),
+    transparent
+  ) !important;
+  height: 3px;
+  margin: var(--space-8) 0;
+  border: none;
+}
+
+.official-content .partial-divider {
+  background: linear-gradient(to right, 
+    rgba(139, 0, 0, 0.3), 
+    rgba(139, 0, 0, 0.7),
+    rgba(139, 0, 0, 0.3)
+  ) !important;
+  height: 2px;
+  margin: var(--space-6) auto;
+  border: none;
+}
+
+/* Изображения - оставлены только базовые стили, тема из themes.css */
+.official-content .image-inline {
+  margin: var(--space-6) 0;
+  text-align: center;
+  padding: var(--space-4);
+}
+
+.official-content .image-inline img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius-md);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7);
+}
+
+.official-content .image-subtext {
+  color: rgba(255, 255, 255, 0.7) !important;
+  font-size: var(--size-sm);
+  margin-top: var(--space-3);
+  font-style: italic;
+  padding: var(--space-2) var(--space-3);
+  display: inline-block;
+}
+
+/* Collapsible секции - оставлены только базовые стили, тема из themes.css */
+.official-content .collapsible-inline {
+  background: rgba(35, 35, 35, 0.9) !important;
+  border-radius: var(--radius-md);
+  margin: var(--space-3) 0;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.official-content .collapsible-toggle-inline {
+  color: #ffffff !important;
+  background: rgba(45, 45, 45, 0.9) !important;
+  padding: var(--space-3) var(--space-4) !important;
+  font-weight: 600;
+  border: none;
+}
+
+.official-content .collapsible-toggle-inline:hover {
+  background: rgba(55, 55, 55, 0.95) !important;
+}
+
+.official-content .collapsible-content-inline > div {
+  background: rgba(25, 25, 25, 0.95) !important;
+  border-left: 4px solid #8b0000 !important;
+  color: #ffffff !important;
+  margin: 0 !important;
+  padding: var(--space-4) !important;
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+}
+
+/* Подсказки - оставлены только базовые стили, тема из themes.css */
+.official-content .hint-tooltip {
+  border-bottom: 2px dashed #8b0000 !important;
+  padding-bottom: 1px;
+  font-weight: 500;
+}
+
+.official-content .hint-tooltip:hover {
+  border-bottom: 2px solid #a52a2a !important;
+  background-color: rgba(139, 0, 0, 0.1);
+}
+
+/* Спойлеры - УДАЛЕНЫ, будут использоваться из themes.css */
+/* Акцентные элементы */
+.official-content .text-accent {
+  color: #8b0000 !important;
+  font-weight: 700;
+}
+
+/* Код или преформатированный текст */
+.official-content code,
+.official-content pre {
+  background: rgba(20, 20, 20, 0.9) !important;
+  border: 1px solid rgba(139, 0, 0, 0.3);
+  color: #cccccc !important;
+  border-radius: var(--radius-sm);
+}
+
+/* Карточка для основного контента */
+.official-content .content-card {
+  background: linear-gradient(145deg, #252525, #1a1a1a) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: var(--space-8);
+  border-radius: var(--radius-xl);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+  border-top: 3px solid #8b0000;
+}

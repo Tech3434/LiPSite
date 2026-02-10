@@ -1,0 +1,7 @@
+ds_markdown: Проверка Дискорда
+how_to_install: Как установить сборку/билд
+races: Расы
+classes: Классы
+specialisations: Специализации
+events: События
+cycles: Цикл, Эра, перенос, вайпы

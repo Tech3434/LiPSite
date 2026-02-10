@@ -1,0 +1,66 @@
+Корневая папка:
+index.html - HTML каркас, точка входа приложения
+
+Папка _descriptors:
+overall.txt - общее описание архитектуры проекта (этот файл)
+details.txt - детальные описания всех файлов проекта
+
+Папка data/:
+Хранилище всех данных приложения (конфиги, сезоны, акты, гайды, изображения)
+Структура: /data/info/, /data/seasons/seasonX/acts/actY/, /data/seasons/seasonX/guides/
+
+Папка scripts/:
+main.js - точка входа JavaScript, только создание экземпляра AppController
+appState.js - централизованное состояние приложения (State Management)
+fileManager.js - HTTP запросы, загрузка данных с сервера, кэширование (5 мин TTL)
+domUtils.js - DOM утилиты: parseMarkdownToHTML, createElement, fadeElement
+utils.js - хелперы: sanitizePath, validateUrl, sanitizeHTML, convertToRoman, debounce
+
+Папка scripts/controllers/:
+appController.js - главный координатор приложения, инициализация всех компонентов
+navigationController.js - обработка URL/hash навигации (parseHash, updateURL, handleHashChange)
+contentController.js - загрузка и обновление контента (loadSeasonData, updateContentForCurrentMode)
+themeController.js - управление темами и баннерами (loadActTheme, applyTheme, updateBannerFromAct)
+modalController.js - управление модальными окнами (attachEventListeners, закрытие через оверлей/Escape)
+
+Папка scripts/ui/:
+seasonUI.js - UI сезонов: renderSeasonSelector, selectSeason, обработка кликов
+actUI.js - UI актов: renderActSelector, selectAct, обработка кликов
+contentUI.js - UI контента: selectContentMode, updateStory/Players/GuidesContent
+guideUI.js - UI гайдов и модалок: openGuideFromURL, openGuideModal, closeGuideModal
+
+Папка styles/ (импортируются через main.css):
+main.css - главный CSS файл, точка входа, объявление keyframes анимаций
+
+styles/base/:
+reset.css - сбросы стилей, базовые стили body, .visually-hidden, .hidden
+variables.css - все CSS переменные (цвета, размеры, отступы, темы)
+typography.css - типографика: .content-text, .line-clamp-*, .prose, .guide-description
+
+styles/components/:
+buttons.css - все кнопки: .btn, .btn-state-active/inactive, .btn-mode-, .btn-theme-primary
+cards.css - карточки: .content-card, .card-animated (компактный табличный вид для гайдов)
+header.css - хедер: .header-main (фиксированный с блюром), .text-gradient-primary, .icon-link-discord
+footer.css - футер: .footer-main, .footer-highlight, .footer-creator
+banner.css - баннер: .banner-main с псевдоэлементом ::before для блюра/затемнения
+table.css - таблицы: .table-base, .table-header-row, .status- (alive/dead/lost/left)
+modal.css - модалки: .modal-background, .modal-content-base, .modal-close-btn (внутри контента)
+loader.css - лоадеры: .loader (спиннер), .pulse
+
+styles/layout/:
+container.css - контейнеры: .container-base, .selector-wrapper, .content-section, .section-title
+grid.css - grid утилиты: .grid-cols-1/2/3/4
+flex.css - flex утилиты: .flex, .flex-col, .items-center, .justify-between
+
+styles/utilities/:
+spacing.css - отступы: .p-, .m-, .py-, .px-, .mb-, .mt-
+text.css - текст утилиты: .text-center, .text-xl, .font-
+display.css - скроллбары: .scrollbar-custom
+animations.css - анимации: .fade-in-up, .slide-in-*, .spin, .bounce (дублирует main.css)
+
+styles/themes/:
+themes.css - стили для активной темы: .theme-active для всех компонентов, спойлеры .spoiler
+
+styles/responsive/:
+mobile.css - адаптивность до 640px/768px, медиазапросы, prefers-reduced-motion
+print.css - стили для печати

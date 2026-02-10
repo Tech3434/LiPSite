@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Лапочки и Пупсики</title>
+    <link rel="stylesheet" href="styles/main.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body class="page-base">
+    <header class="header-main">
+      <div class="container-base flex justify-between items-center">
+        <div id="header-title" class="text-gradient-primary">Loading...</div>
+        <div>
+          <a
+            id="discord-link"
+            href="#"
+            target="_blank"
+            class="icon-link-discord"
+          >
+            <i class="fab fa-discord"></i>
+          </a>
+        </div>
+      </div>
+    </header>
+    <main class="pb-12">
+      <div class="container-base">
+        <div class="pt-16 pb-20">
+          <div class="selector-wrapper mt-6 mb-8">
+            <nav class="flex flex-wrap gap-2" id="season-selector"></nav>
+          </div>
+          <div class="content-section">
+            <div
+              id="official-info"
+              class="transition-all duration-300 hidden pt-8"
+            ></div>
+            <div id="season-content" class="hidden">
+              <!-- БАННЕР: СВЕРХУ - НАЗВАНИЕ АКТА, СНИЗУ - ОПИСАНИЕ СЕЗОНА -->
+              <div id="season-banner" class="banner-main">
+                <div class="banner-overlay">
+                  <div class="max-w-4xl">
+                    <!-- ЗДЕСЬ ТЕПЕРЬ ОТОБРАЖАЕТСЯ НАЗВАНИЕ АКТА -->
+                    <h1 id="season-title" class="text-5xl font-bold mb-4"></h1>
+                    <!-- А ЗДЕСЬ ОПИСАНИЕ СЕЗОНА -->
+                    <p id="season-synopsis" class="text-xl text-slate-300"></p>
+                  </div>
+                </div>
+              </div>
+              <div class="mb-8">
+                <h3 class="section-title">Выбор Акта</h3>
+                <div class="selector-wrapper">
+                  <nav class="flex flex-wrap gap-2" id="act-selector"></nav>
+                </div>
+              </div>
+              <div class="mb-8">
+                <h3 class="section-title">Режим Просмотра</h3>
+                <div class="selector-wrapper">
+                  <nav class="flex flex-wrap gap-2" id="content-mode-selector">
+                    <button
+                      data-mode="story"
+                      class="btn btn-mode-primary active-mode"
+                    >
+                      <i class="fas fa-book-open mr-2"></i> История
+                    </button>
+                    <button data-mode="players" class="btn btn-state-inactive">
+                      <i class="fas fa-users mr-2"></i> Игроки
+                    </button>
+                    <button data-mode="guides" class="btn btn-state-inactive">
+                      <i class="fas fa-graduation-cap mr-2"></i> Гайды
+                    </button>
+                  </nav>
+                </div>
+              </div>
+              <div id="content-display" class="min-h-[400px]">
+                <div
+                  id="loading-indicator"
+                  class="hidden flex justify-center items-center py-20"
+                >
+                  <div class="text-center">
+                    <div class="loader mx-auto mb-4"></div>
+                    <p class="text-slate-400">Загрузка...</p>
+                  </div>
+                </div>
+                <div id="story-content" class="content-section-fade">
+                  <div class="content-card">
+                    <h3 class="content-card-title" id="act-title"></h3>
+                    <div class="content-text prose" id="act-story"></div>
+                  </div>
+                </div>
+                <div id="players-content" class="hidden content-section-fade">
+                  <div class="content-card">
+                    <h3 class="content-card-title" id="players-table-title">
+                      Список Игроков
+                    </h3>
+                    <div class="overflow-x-auto table-container">
+                      <table class="table-base">
+                        <thead>
+                          <tr class="table-header-row">
+                            <th class="table-header-cell">Загрузка...</th>
+                            <th class="table-header-cell">Загрузка...</th>
+                            <th class="table-header-cell">Загрузка...</th>
+                            <th class="table-header-cell">Загрузка...</th>
+                          </tr>
+                        </thead>
+                        <tbody id="players-table-body"></tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+                <div id="guides-content" class="hidden content-section-fade">
+                  <div class="content-card">
+                    <h3 class="content-card-title">Гайды Сервера</h3>
+                    <div id="guides-grid"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+    <footer class="footer-main">
+      <div class="container-base">
+        <div class="flex flex-col md:flex-row justify-between items-center">
+          <div class="mb-4 md:mb-0">
+            <p class="text-slate-400">
+              © 2026
+              <span class="footer-highlight" id="footer-server-name"
+                >Сервер</span
+              >. Создан
+              <span class="footer-creator" id="footer-creator">Командой</span>.
+            </p>
+          </div>
+          <div>
+            <a
+              id="footer-discord-link"
+              href="#"
+              target="_blank"
+              class="icon-link-discord footer-discord"
+            >
+              <i class="fab fa-discord"></i>
+              <span class="ml-2 text-lg align-middle">Discord</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </footer>
+    <div id="guide-modal" class="modal-background hidden">
+      <div class="modal-content-base">
+        <div class="p-6">
+          <div id="guide-modal-content" class="scrollbar-custom"></div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="scripts/main.js"></script>
+  </body>
+</html>

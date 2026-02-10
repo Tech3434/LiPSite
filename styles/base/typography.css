@@ -1,0 +1,254 @@
+/* ===== ТИПОГРАФИКА ===== */
+.content-text {
+  font-size: var(--size-lg);
+  line-height: 1.625;
+  color: var(--text-primary);
+}
+
+/* УВЕЛИЧЕННЫЕ РАЗМЕРЫ ЗАГОЛОВКОВ */
+.content-text h4 {
+  font-size: var(--size-4xl) !important;
+  font-weight: 700;
+  margin-top: var(--space-8) !important;
+  margin-bottom: var(--space-4) !important;
+  color: var(--text-primary);
+}
+
+.content-text h5 {
+  font-size: var(--size-3xl) !important;
+  font-weight: 700;
+  margin-top: var(--space-6) !important;
+  margin-bottom: var(--space-3) !important;
+  color: var(--text-primary);
+}
+
+.content-text h6 {
+  font-size: var(--size-2xl) !important;
+  font-weight: 700;
+  margin-top: var(--space-5) !important;
+  margin-bottom: var(--space-3) !important;
+  color: var(--text-primary);
+}
+
+.content-text p {
+  margin: var(--space-4) 0;
+  color: var(--text-primary);
+}
+
+.content-text ul {
+  margin: var(--space-4) 0;
+  padding-left: var(--space-6);
+}
+
+.content-text li {
+  margin-bottom: var(--space-2);
+  color: var(--text-primary);
+}
+
+/* Стили для новых элементов маркдауна */
+.link-masked {
+  color: var(--link-color) !important;
+  text-decoration: underline;
+  transition: color var(--transition-fast);
+}
+
+.link-masked:hover {
+  color: var(--link-hover) !important;
+}
+
+.link-masked:visited {
+  color: var(--link-visited) !important;
+}
+
+.full-divider {
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(to right, transparent, var(--text-secondary), transparent);
+  border: none;
+  margin: var(--space-8) 0;
+}
+
+.partial-divider {
+  width: calc(100% - 16rem);
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--text-secondary), transparent);
+  opacity: 0.5;
+  border: none;
+  margin: var(--space-6) auto;
+}
+
+/* СТИЛИ ДЛЯ ИЗОБРАЖЕНИЙ */
+.image-inline {
+  text-align: center;
+  margin: var(--space-4) 0;
+}
+
+.image-inline img {
+  max-width: 100%;
+  max-height: 500px;
+  height: auto;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  display: block;
+  margin: 0 auto;
+}
+
+.image-subtext {
+  font-size: var(--size-sm);
+  opacity: 0.75;
+  margin-top: var(--space-2);
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.image-error {
+  font-size: var(--size-sm);
+  color: #f87171;
+  font-style: italic;
+}
+
+/* COLLAPSIBLE SECTIONS - ИНЛАЙН ВАРИАНТ */
+.collapsible-inline {
+  margin: var(--space-2) 0;
+  display: inline-block;
+  width: 100%;
+}
+
+.collapsible-toggle-inline {
+  background: transparent !important;
+  border: none;
+  cursor: pointer;
+  padding: 0.125rem 0.5rem;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-base);
+  color: var(--text-primary) !important;
+  font-size: inherit !important;
+  font-family: inherit !important;
+  line-height: inherit !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.collapsible-toggle-inline:hover {
+  background: rgba(255, 255, 255, 0.05) !important;
+}
+
+.collapsible-toggle-inline.collapsible-active {
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+.collapsible-toggle-inline .collapsible-arrow-inline {
+  transition: transform var(--transition-base);
+  flex-shrink: 0;
+  margin-left: 0.25rem;
+  width: 1em !important;
+  height: 1em !important;
+  min-width: 1em;
+  min-height: 1em;
+}
+
+/* Текст в кнопке не должен обрезаться из-за стрелочки */
+.collapsible-toggle-inline span {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal;
+  word-wrap: break-word;
+}
+
+.collapsible-content-inline {
+  transition: max-height var(--transition-base) ease,
+              margin-top var(--transition-base) ease,
+              margin-bottom var(--transition-base) ease;
+  overflow: hidden;
+  max-height: 0;
+}
+
+.collapsible-content-inline > div {
+  background: rgba(0, 0, 0, 0.2);
+  border-left: 2px solid var(--text-muted);
+  padding: 0.75rem 1rem;
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  margin-left: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+/* HINT TOOLTIPS */
+.hint-tooltip {
+  position: relative;
+  cursor: help;
+  border-bottom: 1px dashed var(--text-muted);
+  transition: border-color var(--transition-fast);
+}
+
+.hint-tooltip:hover {
+  border-bottom-color: var(--text-accent);
+}
+
+.tooltip-popup {
+  position: fixed;
+  z-index: 9999;
+  background: var(--color-darker);
+  border: 1px solid var(--color-dark);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--size-sm);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-elevated);
+  max-width: 300px;
+  word-wrap: break-word;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.tooltip-popup::before {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid var(--color-dark);
+}
+
+.line-clamp-1 {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-4 {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* СПЕЦИАЛЬНЫЙ КЛАСС ДЛЯ ОПИСАНИЯ ГАЙДОВ */
+.guide-description {
+  padding: 0 var(--space-2);
+  text-align: justify;
+}

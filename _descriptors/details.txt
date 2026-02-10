@@ -1,0 +1,83 @@
+scripts/main.js
+Точка входа. Создает window.app = new AppController(), вызывает app.init() после DOMContentLoaded. Ничего больше не делает. Если приложение не запускается - проблема здесь или в appController.js.
+
+scripts/appState.js
+Централизованное хранилище состояния. Содержит state: currentSeason, currentAct, currentMode, seasonsList, currentTheme, isThemeActive, currentOpenGuide. Предоставляет методы: getState, setState, add/removeEventListener, triggerEvent. Если состояние сбрасывается/не обновляется - ищи здесь.
+
+scripts/fileManager.js
+Отвечает за все HTTP-запросы к серверу, загрузку данных и кэширование. Использует fetchWithCache с TTL 5 минут и pendingRequests для дедупликации. Основные функции: loadServerConfig, loadOfficialInfo, getActTheme, getSeasonsList, getSeasonInfo, getActsForSeason, getActStory, getActPlayers, getGuidesForSeason, getGuideContent. Если данные не грузятся - проблема здесь или в сети.
+
+scripts/domUtils.js
+Утилиты для работы с DOM. parseMarkdownToHTML(text, textColor) - преобразует Discord-style markdown (заголовки #, ##, ###, списки –, субтекст -#, спойлеры ||text||, жирный/курсив/подчеркивание/зачеркивание, ссылки text) в HTML с учетом темы. createElement(tag, options) - фабрика элементов с классами, текстом, данными, слушателями. fadeElement(element, direction, duration, easing) - анимация появления/исчезновения элемента. Если контент не парсится или анимации лагают - смотри сюда.
+
+scripts/utils.js
+Вспомогательные функции. sanitizePath(path) - очистка пути от инъекций и traversal. validateUrl(url) - валидация URL. sanitizeHTML(str) - экранирование HTML. convertToRoman(num) - конвертация в римские цифры (используется в заголовках). debounce(func, wait) - дебаунс. Проблемы с безопасностью или форматированием - ищи здесь.
+
+scripts/controllers/appController.js
+Главный контроллер-координатор. Создает все остальные контроллеры и UI-компоненты, кэширует DOM-элементы, запускает инициализацию. Методы: init, attachEventListeners, updateHeaderTitle, show/hideLoading. Если приложение не инициализируется или компоненты не связаны - проблема здесь.
+
+scripts/controllers/navigationController.js
+Управляет навигацией через URL hash. parseHash() - разбирает хэш на season, act, mode, guideId. updateURL() - обновляет хэш на основе состояния. handleHashChange() - основной обработчик изменения URL. loadSeasonFromURL() - загрузка состояния из URL. Если навигация не работает или хэш не меняется - смотри сюда.
+
+scripts/controllers/contentController.js
+Координатор загрузки контента. loadSeasonData(seasonId) - загружает информацию сезона и его акты. updateContentForCurrentMode() - обновляет контент в зависимости от выбранного режима (story/players/guides). Если контент не обновляется при переключении режимов - проблема здесь.
+
+scripts/controllers/themeController.js
+Управление темами и баннерами. loadActTheme(seasonId, actId) - загружает тему (цвета, фон) из design.txt. applyTheme(theme) - применяет CSS-переменные темы и добавляет .theme-active. removeTheme() - сбрасывает тему. updateBannerFromAct() - обновляет фоновый баннер (ищет в теме, background.txt, season_info.txt). Если темы не применяются или баннер не меняется - ищи здесь.
+
+scripts/controllers/modalController.js
+Контроллер модальных окон. attachEventListeners() - вешает слушатели на закрытие модалки (клик по оверлею, Escape). Не содержит closeGuideModal - он перемещен в guideUI.js. Если модалка не закрывается - проблема здесь или в guideUI.
+
+scripts/ui/seasonUI.js
+UI для выбора сезонов. renderSeasonSelector() - создает кнопки сезонов из списка. updateSeasonButtons(selectedSeasonId) - обновляет стили кнопок. selectSeason(seasonId) - основной метод выбора сезона, переключает контент, вызывает loadSeasonData. Если кнопки не отображаются или выбор сезона не работает - проблема здесь.
+
+scripts/ui/actUI.js
+UI для выбора актов внутри сезона. renderActSelector() - создает кнопки актов. updateActButtons(selectedActId) - обновляет стили кнопок. selectAct(actId) - выбирает акт, загружает тему, обновляет контент. Если акты не отображаются или не загружается тема - ищи здесь.
+
+scripts/ui/contentUI.js
+UI для переключения режимов контента и отображения этого контента. selectContentMode(mode) - переключает режим, скрывает/показывает секции. updateStoryContent() - загружает и отображает историю акта через parseMarkdownToHTML. updatePlayersContent() - загружает и рендерит таблицу игроков с анимированным появлением строк. updateGuidesContent() - загружает и рендерит сетку карточек гайдов в компактном табличном виде (картинка слева, описание и кнопка справа). Если режимы не переключаются или гайды не отображаются - проблема здесь.
+
+scripts/ui/guideUI.js
+UI для работы с гайдами (модалки). openGuideFromURL(guideId) - открывает гайд по ID из URL. openGuideModal(guide) - открывает модальное окно с загрузкой и отображением контента гайда (использует parseMarkdownToHTML). closeGuideModal() - закрывает модалку, обновляет состояние и URL. Если гайд не открывается или модалка не закрывается - смотри сюда.
+
+styles/main.css
+Точка входа для стилей. Только импорты из всех подпапок + объявление keyframes анимаций (fadeInUp, slideInRight/Left, pulse, spin, bounce, shimmer) и их CSS-классов (.fade-in-up, .slide-in-*, .pulse, .spin, .bounce, .loading-shimmer). Если анимации не работают - проблема здесь.
+
+styles/base/variables.css
+Корневые CSS-переменные для цветов, градиентов, теней, размеров, отступов, радиусов, переходов. Динамические переменные тем (--theme-*). Если цвета "плывут" или темы не применяются - ищи здесь.
+
+styles/themes/themes.css
+Стили для активной темы. Селекторы .theme-active для всех компонентов: body, header, footer, cards, tables, modals, buttons, banner. Переопределяет цвета, градиенты, границы. Содержит стили для спойлеров (.spoiler). Если тема применяется не ко всем элементам - смотри сюда.
+
+styles/components/buttons.css
+Все стили кнопок: базовый .btn, состояния (.btn-state-active/inactive), режимы (.btn-mode-primary/success/warning), кнопки с темой (.btn-theme-primary). Если кнопки не стилизованы или тема не применяется - проблема здесь.
+
+styles/components/banner.css
+Стили для главного баннера. .banner-main с псевдоэлементом ::before для эффекта блюра и затемнения. .banner-overlay для текста. Класс .loading для состояния загрузки. Если баннер не блюрится или текст не виден - ищи здесь.
+
+styles/responsive/mobile.css
+Адаптивные стили для мобильных устройств (максимум 768px и 640px). Медиазапросы изменяют размеры баннера, карточек, таблиц, скрывают/меняют grid, уменьшают шрифты. Блокирует анимации при prefers-reduced-motion. Если на мобильном верстка ломается - смотри сюда.
+
+styles/base/typography.css
+Стили для основного текстового контента. .content-text задает размер и цвет основного текста, стилизует заголовки h4-h6, параграфы, списки. .line-clamp-1 до .line-clamp-4 обрезают текст. .prose ограничивает максимальную ширину. .guide-description - специальный класс для описания гайдов с отступами и выравниванием по ширине. Если текст не помещается или обрезается - ищи здесь.
+
+styles/components/cards.css
+Стили для карточек. .content-card - базовая карточка. .card-animated - анимированная карточка для гайдов в компактном табличном виде (фиксированная высота 180px, горизонтальное расположение: изображение слева 160px, контент справа). Если карточки не анимируются или гайды отображаются некорректно - проблема здесь.
+
+styles/components/header.css
+Стили для фиксированного хедера. .header-main - фиксированный хедер с блюром. .text-gradient-primary - логотип/название (белый текст, в теме - цвет темы). .icon-link-discord - иконка Discord. Если хедер не фиксируется или блюр не работает - смотри сюда.
+
+styles/components/footer.css
+Стили для футера. .footer-main - основной блок. .footer-highlight и .footer-creator - текст в футере. Если футер не отображается или цвета не соответствуют теме - ищи здесь.
+
+styles/components/loader.css
+Стили для индикаторов загрузки. .loader - крутящийся спиннер. .pulse - пульсирующая анимация. Если лоадер не вращается - проблема здесь.
+
+styles/layout/container.css
+Стили для контейнеров и секций. .container-base - центральный контейнер с max-width. .selector-wrapper - обертка для селекторов. .section-title - заголовки секций. .content-section и .content-section-fade - секции контента с анимациями. Если контент не центрируется или анимации лагают - смотри сюда.
+
+styles/utilities/animations.css
+Ключевые кадры анимаций и CSS-классы для их применения. Дублирует анимации из main.css. Если анимации конфликтуют - проверь оба файла.
+
+styles/responsive/print.css
+Стили для печати. Скрывает хедер, футер, кнопки, убирает фон, тени, блюр. Если при печати отображаются ненужные элементы - ищи здесь.

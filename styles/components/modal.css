@@ -1,0 +1,140 @@
+/* ===== МОДАЛЬНОЕ ОКНО ===== */
+.modal-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(10px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  opacity: 0;
+  transition: opacity var(--transition-base);
+}
+
+.modal-background:not(.hidden) {
+  display: flex;
+  animation: modalFadeIn var(--transition-base) forwards;
+}
+
+.modal-background.closing {
+  animation: modalFadeOut var(--transition-base) forwards !important;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modalFadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.modal-content-base {
+  position: relative;
+  background: rgba(35, 35, 35, 1.0);
+  border-radius: var(--radius-xl);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  max-width: 70%;
+  width: 100%;
+  max-height: 90%;
+  overflow-y: auto;
+  box-shadow: var(--shadow-elevated);
+  transform: scale(0.9);
+  opacity: 0;
+  animation: modalContentAppear var(--transition-base) forwards;
+  will-change: transform, opacity;
+}
+
+.modal-content-base.closing {
+  animation: modalContentDisappear var(--transition-base) forwards !important;
+}
+
+@keyframes modalContentAppear {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes modalContentDisappear {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95) translateY(20px);
+  }
+}
+
+.modal-header {
+  position: sticky;
+  top: 0;
+  background: rgba(35, 35, 35, 0.95);
+  backdrop-filter: blur(10px);
+  z-index: 10;
+  padding: var(--space-6) var(--space-6) var(--space-4);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-title {
+  font-size: var(--size-2xl);
+  font-weight: 700;
+  color: var(--text-primary);
+  transition: color var(--transition-base);
+  margin: 0;
+  padding-right: var(--space-8);
+}
+
+.modal-close-btn {
+  position: sticky;
+  top: var(--space-4);
+  right: var(--space-4);
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: var(--space-2);
+  border-radius: var(--radius-full);
+  transition: all var(--transition-fast);
+  font-size: var(--size-lg);
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.modal-close-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: var(--text-primary);
+  transform: rotate(90deg);
+}
+
+.modal-body {
+  padding: var(--space-6);
+}

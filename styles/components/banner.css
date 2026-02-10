@@ -1,0 +1,82 @@
+/* ===== БАННЕР ===== */
+.banner-main {
+  width: 100%;
+  height: 20rem;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  position: relative;
+  margin-bottom: var(--space-8);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  transition: background-image var(--transition-slow), filter var(--transition-base);
+  will-change: background-image, filter;
+}
+
+/* Псевдоэлемент для эффекта блюра и затемнения */
+.banner-main::before {
+  content: '';
+  position: absolute;
+  top: -100px;
+  left: -100px;
+  right: -100px;
+  bottom: -100px;
+  background: inherit;
+  background-size: cover;
+  background-position: center;
+  filter: blur(3px) brightness(0.5);
+  z-index: 0;
+  transition: all var(--transition-slow);;
+}
+
+.banner-main.loading::before {
+  filter: blur(18px) brightness(0.7);
+}
+
+.banner-overlay {
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to bottom, 
+    rgba(2, 6, 23, 0.95) 10%, 
+    rgba(2, 6, 23, 0.3) 100%,
+    transparent 100%
+  );
+  padding: var(--space-8);
+  transition: all var(--transition-slow);
+  z-index: 2;
+  display: flex;
+  align-items: flex-start;
+}
+
+.banner-overlay.theme-active {
+  background: linear-gradient(to bottom,
+    color-mix(in srgb, var(--theme-primary) 50%, transparent) 0%,
+    color-mix(in srgb, var(--theme-primary) 90%, transparent) 50%,
+    transparent 100%
+  );
+}
+
+.banner-overlay h1 {
+  font-size: var(--size-5xl);
+  font-weight: 700;
+  margin-bottom: var(--space-4);
+  color: var(--text-primary);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+  position: relative;
+  z-index: 3;
+  display: block;
+  width: 100%;
+}
+
+.banner-overlay p {
+  font-size: var(--size-xl);
+  color: var(--text-primary);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
+  position: absolute;
+  z-index: 3;
+  bottom: var(--space-8);
+  left: var(--space-8);
+  right: var(--space-8);
+}

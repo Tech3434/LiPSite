@@ -1,0 +1,5 @@
+background: /images/seasons/s2a5.png
+primary: #085436
+secondary: #626e28
+accent: #859737
+text: #FFFFFF

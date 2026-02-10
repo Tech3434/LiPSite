@@ -1,0 +1,5 @@
+background: /images/seasons/s2a3.png
+primary: #867443
+secondary: #712814
+accent: #ee862c
+text: #FFFFFF

@@ -1,0 +1,95 @@
+/* ===== КАРТОЧКИ ===== */
+.content-card {
+  background: var(--gradient-card);
+  backdrop-filter: blur(10px);
+  border-radius: var(--radius-xl);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-card);
+  transition: all var(--transition-slow);
+  will-change: transform, box-shadow;
+}
+
+.content-card-title {
+  font-size: var(--size-2xl);
+  font-weight: 700;
+  margin-bottom: var(--space-4);
+  color: var(--text-primary);
+  transition: color var(--transition-base);
+}
+
+/* КАРТОЧКИ ДЛЯ ГАЙДОВ - КОМПАКТНЫЙ ТАБЛИЧНЫЙ ВИД */
+.card-animated {
+  background: var(--gradient-card);
+  border-radius: var(--radius-lg); /* Меньше радиус */
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+  transition: all var(--transition-base); /* Более быстрая анимация */
+  will-change: transform, opacity;
+  height: 180px; /* Фиксированная высота для компактности */
+  display: flex;
+  flex-direction: row; /* Горизонтальное расположение для табличного вида */
+  width: 100%;
+}
+
+.card-animated:hover {
+  transform: translateY(-4px); /* Меньший подъем */
+  box-shadow: var(--shadow-elevated);
+}
+
+/* ИЗОБРАЖЕНИЕ ДЛЯ ГАЙДОВ - квадратное, слева */
+.card-animated img {
+  width: 160px; /* Фиксированная ширина */
+  height: 100%; /* Занимает всю высоту карточки */
+  object-fit: cover;
+  transition: transform var(--transition-base);
+  will-change: transform;
+  flex-shrink: 0;
+}
+
+.card-animated:hover img {
+  transform: scale(1.05);
+}
+
+/* КОНТЕЙНЕР С КОНТЕНТОМ СПРАВА */
+.card-animated .card-content {
+  padding: var(--space-4);
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0; /* Для правильной работы с текстом */
+}
+
+/* ЗАГОЛОВОК ГАЙДА */
+.card-animated h4 {
+  font-size: var(--size-lg);
+  font-weight: 700;
+  margin-bottom: var(--space-2);
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ОПИСАНИЕ ГАЙДА - с отступом и ограничением по строкам */
+.card-animated .guide-description {
+  font-size: var(--size-sm);
+  line-height: 1.4;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-4);
+  padding-right: var(--space-2); /* Отступ от правой границы */
+  flex-grow: 1;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3; /* Ограничение на 3 строки */
+  -webkit-box-orient: vertical;
+}
+
+/* КНОПКА ОТКРЫТИЯ ГАЙДА - внизу справа */
+.card-animated .open-guide-btn {
+  margin-top: auto;
+  align-self: flex-end;
+  width: auto;
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--size-sm);
+}

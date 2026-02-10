@@ -1,0 +1,138 @@
+/* ===== MAIN IMPORTS ===== */
+@import './base/reset.css';
+@import './base/variables.css';
+@import './base/typography.css';
+
+@import './components/buttons.css';
+@import './components/cards.css';
+@import './components/header.css';
+@import './components/footer.css';
+@import './components/banner.css';
+@import './components/table.css';
+@import './components/modal.css';
+@import './components/loader.css';
+@import './components/official-page.css'; /* Добавляем наш новый файл */
+
+@import './layout/container.css';
+@import './layout/grid.css';
+@import './layout/flex.css';
+
+@import './utilities/spacing.css';
+@import './utilities/text.css';
+@import './utilities/display.css';
+@import './utilities/animations.css';
+
+@import './themes/themes.css';
+
+@import './responsive/mobile.css';
+@import './responsive/print.css';
+
+/* ГЛОБАЛЬНЫЕ СТИЛИ ДЛЯ ЧЁРНО-БЕЛОЙ СХЕМЫ */
+.page-base {
+  background: var(--color-darker) !important;
+  color: var(--text-primary);
+}
+
+/* animations.css */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+/* Классы анимаций */
+.fade-in-up {
+  animation: fadeInUp 0.6s ease forwards;
+}
+
+.slide-in-right {
+  animation: slideInRight 0.5s ease forwards;
+}
+
+.slide-in-left {
+  animation: slideInLeft 0.5s ease forwards;
+}
+
+.pulse {
+  animation: pulse 2s infinite;
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+.bounce {
+  animation: bounce 0.5s ease infinite;
+}
+
+.loading-shimmer {
+  background: linear-gradient(90deg, 
+    rgba(255, 255, 255, 0.1) 25%, 
+    rgba(255, 255, 255, 0.2) 50%, 
+    rgba(255, 255, 255, 0.1) 75%);
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite linear;
+}

@@ -1,0 +1,41 @@
+/* ===== ХЕДЕР ===== */
+.header-main {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: #282828;
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: var(--space-4) 0;
+  transition: all var(--transition-slow);
+}
+
+.text-gradient-primary {
+  /* Заменяем градиент на белый текст */
+  color: var(--text-primary) !important;
+  font-weight: 700;
+  font-size: var(--size-xl);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* При активации темы делаем текст по теме */
+.text-gradient-primary.theme-active {
+  color: var(--theme-text) !important;
+  background: none !important;
+  -webkit-background-clip: initial !important;
+  background-clip: initial !important;
+}
+
+.icon-link-discord {
+  color: var(--text-primary);
+  text-decoration: none;
+  transition: color var(--transition-base), transform var(--transition-base);
+  font-size: var(--size-lg);
+}
+
+.icon-link-discord:hover {
+  color: var(--text-primary);
+  transform: scale(1.1);
+}

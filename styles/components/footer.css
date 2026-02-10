@@ -1,0 +1,20 @@
+/* ===== ФУТЕР ===== */
+.footer-main {
+  background: #282828;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding: var(--space-8) 0;
+  margin-top: var(--space-12);
+  transition: all var(--transition-slow);
+}
+
+.footer-highlight {
+  color: var(--text-primary);
+  font-weight: 600;
+  transition: color var(--transition-base);
+}
+
+.footer-creator {
+  color: var(--text-primary);
+  font-weight: 600;
+  transition: color var(--transition-base);
+}

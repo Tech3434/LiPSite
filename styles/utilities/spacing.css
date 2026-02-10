@@ -1,0 +1,43 @@
+/* ===== ОТСТУПЫ ===== */
+.p-6 { padding: var(--space-6); }
+.p-8 { padding: var(--space-8); }
+.py-12 { 
+  padding-top: var(--space-12); 
+  padding-bottom: var(--space-12); 
+}
+.py-20 { 
+  padding-top: var(--space-20); 
+  padding-bottom: var(--space-20); 
+}
+.pt-16 { padding-top: var(--space-16); }
+.pb-12 { padding-bottom: var(--space-12); }
+.pb-20 { padding-bottom: var(--space-20); }
+
+.mb-4 { margin-bottom: var(--space-4); }
+.mb-6 { margin-bottom: var(--space-6); }
+.mb-8 { margin-bottom: var(--space-8); }
+.mt-6 { margin-top: var(--space-6); }
+.mt-8 { margin-top: var(--space-8); }
+
+.mx-auto { 
+  margin-left: auto; 
+  margin-right: auto; 
+}
+
+/* Вспомогательные классы для HTML */
+.mr-2 { margin-right: var(--space-2); }
+.ml-2 { margin-left: var(--space-2); }
+.mt-4 { margin-top: var(--space-4); }
+
+.py-8 { 
+  padding-top: var(--space-8); 
+  padding-bottom: var(--space-8); 
+}
+.py-4 { 
+  padding-top: var(--space-4); 
+  padding-bottom: var(--space-4); 
+}
+.px-4 { 
+  padding-left: var(--space-4); 
+  padding-right: var(--space-4); 
+}

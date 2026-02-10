@@ -1,0 +1,4 @@
+ds_markdown: Проверка Дискорда
+races: Расы
+classes: Классы
+specialisations: Специализации

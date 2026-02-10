@@ -1,0 +1,5 @@
+background: /images/seasons/s2a4.png
+primary: #693431
+secondary: #985e5a
+accent: #d1b3ab
+text: #FFFFFF

@@ -1,0 +1,120 @@
+/* ===== АДАПТИВНОСТЬ ===== */
+@media (max-width: 768px) {
+  .container-base {
+    padding-left: var(--space-3);
+    padding-right: var(--space-3);
+  }
+  
+  .banner-main {
+    height: 16rem;
+    border-radius: var(--radius-lg);
+    filter: blur(1px) brightness(0.9);
+  }
+  
+  .banner-main::before {
+    filter: blur(2px) brightness(0.85);
+  }
+  
+  .banner-main.loading {
+    filter: blur(4px) brightness(0.8);
+  }
+  
+  .banner-main.loading::before {
+    filter: blur(6px) brightness(0.7);
+  }
+  
+  .content-card {
+    padding: var(--space-4);
+    border-radius: var(--radius-lg);
+  }
+  
+  .btn {
+    padding: var(--space-2) var(--space-4);
+    font-size: var(--size-sm);
+  }
+  
+  .table-header-cell,
+  .table-body-cell {
+    padding: var(--space-3);
+    font-size: var(--size-sm);
+  }
+  
+  .card-animated:hover {
+    transform: translateY(-4px);
+  }
+  
+  .grid-cols-2,
+  .grid-cols-3 {
+    grid-template-columns: 1fr;
+  }
+  
+  .banner-overlay h1 {
+    font-size: var(--size-3xl);
+  }
+  
+  .banner-overlay p {
+    font-size: var(--size-lg);
+  }
+  
+  .modal-content-base {
+    max-width: 95vw;
+    max-height: 85vh;
+  }
+}
+
+@media (max-width: 640px) {
+  .banner-main {
+    height: 12rem;
+  }
+  
+  .banner-overlay {
+    padding: var(--space-4);
+  }
+  
+  .selector-wrapper nav {
+    justify-content: center;
+  }
+  
+  .text-5xl { 
+    font-size: var(--size-4xl); 
+  }
+  .text-4xl { 
+    font-size: var(--size-3xl); 
+  }
+  .text-3xl { 
+    font-size: var(--size-2xl); 
+  }
+  
+  .table-container {
+    border-radius: var(--radius-md);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .table-base {
+    min-width: 100%;
+  }
+}
+
+/* ===== ДОСТУПНОСТЬ ===== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  .btn:hover:not(:disabled) {
+    transform: none;
+  }
+  
+  .card-animated:hover {
+    transform: none;
+  }
+  
+  .table-body-row:hover {
+    transform: none;
+  }
+}

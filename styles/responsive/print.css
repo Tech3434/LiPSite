@@ -1,0 +1,41 @@
+/* ===== СТИЛИ ДЛЯ ПЕЧАТИ ===== */
+@media print {
+  .header-main,
+  .footer-main,
+  .selector-wrapper,
+  .btn {
+    display: none !important;
+  }
+  
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  
+  .content-card {
+    box-shadow: none !important;
+    border: 1px solid #ddd !important;
+    background: white !important;
+  }
+  
+  a {
+    color: black !important;
+    text-decoration: underline;
+  }
+  
+  .banner-main {
+    height: auto !important;
+    background: none !important;
+    filter: none !important;
+  }
+  
+  .banner-main::before {
+    display: none !important;
+  }
+  
+  .banner-overlay {
+    position: static !important;
+    background: none !important;
+    padding: 0 !important;
+  }
+}
