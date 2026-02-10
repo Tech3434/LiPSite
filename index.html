@@ -4,6 +4,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Лапочки и Пупсики</title>
+    <!-- Base tag for GitHub Pages -->
+    <base href="/">
+    
     <link rel="stylesheet" href="styles/main.css" />
     <link
       rel="stylesheet"
@@ -155,6 +158,17 @@
         </div>
       </div>
     </div>
+
+    <!-- GitHub Pages SPA fix -->
+    <script>
+      (function() {
+        if (window.location.search.includes('?p=')) {
+          var path = window.location.search.split('?p=')[1].split('&')[0].replace(/~and~/g, '&');
+          var hash = window.location.hash;
+          window.history.replaceState(null, null, window.location.pathname + '#' + path + hash);
+        }
+      })();
+    </script>
 
     <script type="module" src="scripts/main.js"></script>
   </body>

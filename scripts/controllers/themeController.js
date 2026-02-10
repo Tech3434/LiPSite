@@ -76,13 +76,22 @@ class ThemeController {
 
     // ВАЖНО: После применения темы обновляем все кнопки
     setTimeout(() => {
-      if (this.app.seasonUI && typeof this.app.seasonUI.refreshSeasonButtons === 'function') {
+      if (
+        this.app.seasonUI &&
+        typeof this.app.seasonUI.refreshSeasonButtons === "function"
+      ) {
         this.app.seasonUI.refreshSeasonButtons();
       }
-      if (this.app.actUI && typeof this.app.actUI.refreshActButtons === 'function') {
+      if (
+        this.app.actUI &&
+        typeof this.app.actUI.refreshActButtons === "function"
+      ) {
         this.app.actUI.refreshActButtons();
       }
-      if (this.app.contentUI && typeof this.app.contentUI.updateModeButtons === 'function') {
+      if (
+        this.app.contentUI &&
+        typeof this.app.contentUI.updateModeButtons === "function"
+      ) {
         this.app.contentUI.updateModeButtons();
       }
     }, 50);
@@ -184,10 +193,10 @@ class ThemeController {
           state.currentTheme.background || state.currentTheme.backgroundImage
         ).trim();
       } else {
-        // Пробуем загрузить background.txt
+        // Пробуем загрузить background.txt (исправленный путь для GitHub Pages)
         try {
           const response = await fetch(
-            `${BASE_PATH}/seasons/${state.currentSeason}/acts/${state.currentAct}/background.txt`,
+            `./data/seasons/${state.currentSeason}/acts/${state.currentAct}/background.txt`,
           );
           if (response.ok) {
             const text = await response.text();
@@ -198,10 +207,10 @@ class ThemeController {
         }
       }
 
-      // Загружаем название акта из story.txt (первая строка)
+      // Загружаем название акта из story.txt (первая строка) - исправленный путь
       try {
         const storyResponse = await fetch(
-          `${BASE_PATH}/seasons/${state.currentSeason}/acts/${state.currentAct}/story.txt`,
+          `./data/seasons/${state.currentSeason}/acts/${state.currentAct}/story.txt`,
         );
         if (storyResponse.ok) {
           const storyText = await storyResponse.text();
@@ -241,27 +250,31 @@ class ThemeController {
       if (imageUrl) {
         imageUrl = imageUrl.replace(/[\r\n]/g, "");
 
-        // Обработка URL
+        // Обработка URL для GitHub Pages
         if (imageUrl.startsWith("http")) {
           const urlObj = new URL(imageUrl);
           if (!["http:", "https:"].includes(urlObj.protocol)) {
             throw new Error("Unsupported protocol");
           }
+        } else if (imageUrl.startsWith("/")) {
+          // Если путь начинается с /, добавляем точку для относительного пути
+          imageUrl = "." + imageUrl;
         } else if (
-          !imageUrl.startsWith("/") &&
-          !imageUrl.startsWith("images/")
+          !imageUrl.startsWith("images/") &&
+          !imageUrl.startsWith("./")
         ) {
-          imageUrl = "/" + imageUrl;
+          // Если нет префикса, добавляем ./ для относительного пути
+          imageUrl = "./" + imageUrl;
         }
 
         await this.loadImageWithFallback(imageUrl);
       } else {
         // Устанавливаем дефолтный фон
-        this.app.elements.seasonBanner.style.backgroundImage = `url('images/error.png')`;
+        this.app.elements.seasonBanner.style.backgroundImage = `url('./images/error.png')`;
       }
     } catch (error) {
       console.error("Error loading banner:", error);
-      this.app.elements.seasonBanner.style.backgroundImage = `url('images/error.png')`;
+      this.app.elements.seasonBanner.style.backgroundImage = `url('./images/error.png')`;
     }
   }
 
@@ -285,9 +298,26 @@ class ThemeController {
       };
 
       img.onerror = () => {
-        this.app.elements.seasonBanner.style.backgroundImage = `url('images/error.png')`;
-        this.app.elements.seasonBanner.classList.remove("loading");
-        resolve(false);
+        // Пробуем альтернативный путь без точки
+        if (url.startsWith("./")) {
+          const altUrl = url.substring(2); // Убираем ./
+          const altImg = new Image();
+          altImg.onload = () => {
+            this.app.elements.seasonBanner.style.backgroundImage = `url('${altUrl}')`;
+            this.app.elements.seasonBanner.classList.remove("loading");
+            resolve(true);
+          };
+          altImg.onerror = () => {
+            this.app.elements.seasonBanner.style.backgroundImage = `url('./images/error.png')`;
+            this.app.elements.seasonBanner.classList.remove("loading");
+            resolve(false);
+          };
+          altImg.src = altUrl;
+        } else {
+          this.app.elements.seasonBanner.style.backgroundImage = `url('./images/error.png')`;
+          this.app.elements.seasonBanner.classList.remove("loading");
+          resolve(false);
+        }
       };
 
       img.src = url;
