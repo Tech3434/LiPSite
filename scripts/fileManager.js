@@ -57,17 +57,12 @@ const fetchWithCache = async (url, options = {}) => {
 
 const countFolders = async (basePath) => {
   try {
-    // ИСПРАВЛЕНО: Добавляем BASE_PATH
-    const fullPath = basePath.startsWith(BASE_PATH)
-      ? basePath
-      : `${BASE_PATH}${basePath.startsWith("/") ? "" : "/"}${basePath}`;
+    const sanitizedPath = sanitizePath(basePath);
 
-    const sanitizedPath = sanitizePath(fullPath);
-
-    // Проверяем первые несколько папок быстро
+    // Проверяем существование season_info.txt файлов вместо папок
     const quickCheckPromises = [];
     for (let i = 1; i <= 10; i++) {
-      const testPath = `${sanitizedPath}${i}/`;
+      const testPath = `${sanitizedPath}${i}/season_info.txt`;
       quickCheckPromises.push(
         fetch(testPath, { method: "HEAD" })
           .then((response) => (response.ok ? i : 0))
@@ -82,13 +77,14 @@ const countFolders = async (basePath) => {
       return maxQuickFound;
     }
 
+    // Продолжаем для большего количества
     let left = 11;
     let right = 50;
     let lastFound = maxQuickFound;
 
     while (left <= right) {
       const mid = Math.floor((left + right) / 2);
-      const testPath = `${sanitizedPath}${mid}/`;
+      const testPath = `${sanitizedPath}${mid}/season_info.txt`;
 
       try {
         const response = await fetch(testPath, { method: "HEAD" });
