@@ -95,7 +95,7 @@ const countFolders = async (basePath) => {
 const FileManager = {
   async loadServerConfig() {
     try {
-      const content = await fetchWithCache("/data/info/server_config.txt");
+      const content = await fetchWithCache("./data/info/server_config.txt");
       const lines = content
         .split("\n")
         .map((line) => line.trim())
@@ -128,7 +128,7 @@ const FileManager = {
 
   async loadOfficialInfo() {
     try {
-      const content = await fetchWithCache("/data/info/official_info.txt");
+      const content = await fetchWithCache("./data/info/official_info.txt");
 
       // Используем parseMarkdownToHTML для обработки Discord-разметки
       const html = parseMarkdownToHTML(content, "#ffffff");
@@ -173,7 +173,7 @@ const FileManager = {
       const sanitizedAct = sanitizePath(actId);
 
       const content = await fetchWithCache(
-        `/data/seasons/${sanitizedSeason}/acts/${sanitizedAct}/design.txt`,
+        `./data/seasons/${sanitizedSeason}/acts/${sanitizedAct}/design.txt`,
       ).catch(() => null);
 
       if (!content) {
@@ -250,7 +250,7 @@ const FileManager = {
       for (let i = 1; i <= seasonsCount; i++) {
         const seasonId = `season${i}`;
         checkPromises.push(
-          fetchWithCache(`/data/seasons/${seasonId}/season_info.txt`)
+          fetchWithCache(`./data/seasons/${seasonId}/season_info.txt`)
             .then((content) => {
               const lines = content.split("\n");
               const seasonName = lines[0]?.trim() || `Сезон ${i}`;
@@ -280,7 +280,7 @@ const FileManager = {
     try {
       const sanitizedSeason = sanitizePath(seasonId);
       const content = await fetchWithCache(
-        `/data/seasons/${sanitizedSeason}/season_info.txt`,
+        `./data/seasons/${sanitizedSeason}/season_info.txt`,
       );
 
       const lines = content
@@ -311,7 +311,7 @@ const FileManager = {
     try {
       const sanitizedSeason = sanitizePath(seasonId);
       const actsCount = await countFolders(
-        `/data/seasons/${sanitizedSeason}/acts/act`,
+        `./data/seasons/${sanitizedSeason}/acts/act`,
       );
 
       const acts = [];
@@ -321,7 +321,7 @@ const FileManager = {
         const actId = `act${i}`;
         checkPromises.push(
           fetchWithCache(
-            `/data/seasons/${sanitizedSeason}/acts/${actId}/story.txt`,
+            `./data/seasons/${sanitizedSeason}/acts/${actId}/story.txt`,
           )
             .then(() => actId)
             .catch(() => null),
@@ -350,7 +350,7 @@ const FileManager = {
       const sanitizedAct = sanitizePath(actId);
 
       const content = await fetchWithCache(
-        `/data/seasons/${sanitizedSeason}/acts/${sanitizedAct}/story.txt`,
+        `./data/seasons/${sanitizedSeason}/acts/${sanitizedAct}/story.txt`,
       );
 
       const lines = content.split("\n");
@@ -371,7 +371,7 @@ const FileManager = {
       const sanitizedAct = sanitizePath(actId);
 
       const content = await fetchWithCache(
-        `/data/seasons/${sanitizedSeason}/acts/${sanitizedAct}/players.txt`,
+        `./data/seasons/${sanitizedSeason}/acts/${sanitizedAct}/players.txt`,
       );
 
       const lines = content.split("\n").filter((line) => line.trim() !== "");
@@ -436,7 +436,7 @@ const FileManager = {
 
       try {
         const listContent = await fetchWithCache(
-          `/data/seasons/${sanitizedSeason}/guides.txt`,
+          `./data/seasons/${sanitizedSeason}/guides.txt`,
         );
 
         const lines = listContent
@@ -452,7 +452,7 @@ const FileManager = {
 
           try {
             const guideContent = await fetchWithCache(
-              `/data/seasons/${sanitizedSeason}/guides/${fileName}.txt`,
+              `./data/seasons/${sanitizedSeason}/guides/${fileName}.txt`,
             );
 
             const contentLines = guideContent.split("\n");
@@ -517,7 +517,7 @@ const FileManager = {
       const sanitizedGuide = sanitizePath(guideId);
 
       const content = await fetchWithCache(
-        `/data/seasons/${sanitizedSeason}/guides/${sanitizedGuide}.txt`,
+        `./data/seasons/${sanitizedSeason}/guides/${sanitizedGuide}.txt`,
       );
 
       const lines = content.split("\n");
