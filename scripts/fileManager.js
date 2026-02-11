@@ -70,59 +70,46 @@ const fetchWithCache = async (url, options = {}) => {
 
 // Функция подсчета папок
 const countFolders = async (basePath) => {
-  try {
-    const sanitizedPath = sanitizePath(basePath);
-
-    // Убираем начальный / если есть
-    const cleanPath = sanitizedPath.startsWith("/")
-      ? sanitizedPath.substring(1)
-      : sanitizedPath;
-
-    // Проверяем первые 10 папок
-    const quickCheckPromises = [];
-    for (let i = 1; i <= 10; i++) {
-      const testPath = `${cleanPath}${i}/`;
-      quickCheckPromises.push(
-        fetch(testPath, { method: "HEAD" })
-          .then((response) => (response.ok ? i : 0))
-          .catch(() => 0),
-      );
-    }
-
-    const quickResults = await Promise.all(quickCheckPromises);
-    const maxQuickFound = Math.max(...quickResults);
-
-    if (maxQuickFound < 10) {
-      return maxQuickFound;
-    }
-
-    // Бинарный поиск
-    let left = 11;
-    let right = 50;
-    let lastFound = maxQuickFound;
-
-    while (left <= right) {
-      const mid = Math.floor((left + right) / 2);
-      const testPath = `${cleanPath}${mid}/`;
-
-      try {
-        const response = await fetch(testPath, { method: "HEAD" });
-        if (response.ok) {
-          lastFound = mid;
-          left = mid + 1;
-        } else {
-          right = mid - 1;
+    try {
+        const sanitizedPath = sanitizePath(basePath);
+        
+        // Убираем начальный / если есть
+        const cleanPath = sanitizedPath.startsWith('/') ? sanitizedPath.substring(1) : sanitizedPath;
+        
+        // Вместо проверки папок через HEAD, будем искать файлы
+        // Предположим, что у нас максимум 10 сезонов
+        const maxSeasons = 10;
+        const foundSeasons = [];
+        
+        // Проверяем наличие season_info.txt для каждого возможного сезона
+        const checkPromises = [];
+        for (let i = 1; i <= maxSeasons; i++) {
+            const seasonPath = `${cleanPath}${i}/season_info.txt`;
+            checkPromises.push(
+                fetch(seasonPath, { method: "HEAD" })
+                    .then((response) => response.ok ? i : 0)
+                    .catch(() => 0)
+            );
         }
-      } catch {
-        right = mid - 1;
-      }
+        
+        const results = await Promise.all(checkPromises);
+        
+        // Считаем найденные сезоны
+        let count = 0;
+        for (let i = 0; i < results.length; i++) {
+            if (results[i] > 0) {
+                count++;
+            } else {
+                // Если нашли разрыв, останавливаемся
+                break;
+            }
+        }
+        
+        return count;
+    } catch (error) {
+        console.error("Error counting folders:", error);
+        return 0;
     }
-
-    return lastFound;
-  } catch (error) {
-    console.error("Error counting folders:", error);
-    return 0;
-  }
 };
 
 const FileManager = {
@@ -271,38 +258,39 @@ const FileManager = {
   },
 
   async getSeasonsList() {
-    try {
-      const seasonsCount = await countFolders("data/seasons/season");
-      const seasons = [];
-
-      const checkPromises = [];
-      for (let i = 1; i <= seasonsCount; i++) {
-        const seasonId = `season${i}`;
-        checkPromises.push(
-          fetchWithCache(`data/seasons/${seasonId}/season_info.txt`)
-            .then((content) => {
-              const lines = content.split("\n");
-              const seasonName = lines[0]?.trim() || `Сезон ${i}`;
-              return {
-                id: seasonId,
-                name: seasonName,
-                order: i,
-              };
-            })
-            .catch(() => null),
-        );
+      try {
+          // Читаем файл со списком сезонов или проверяем последовательно
+          const maxSeasonsToCheck = 10;
+          const seasons = [];
+          
+          const checkPromises = [];
+          for (let i = 1; i <= maxSeasonsToCheck; i++) {
+              const seasonId = `season${i}`;
+              checkPromises.push(
+                  fetchWithCache(`data/seasons/${seasonId}/season_info.txt`)
+                      .then((content) => {
+                          const lines = content.split("\n");
+                          const seasonName = lines[0]?.trim() || `Сезон ${i}`;
+                          return {
+                              id: seasonId,
+                              name: seasonName,
+                              order: i,
+                          };
+                      })
+                      .catch(() => null)
+              );
+          }
+          
+          const results = await Promise.all(checkPromises);
+          results.forEach((season) => {
+              if (season) seasons.push(season);
+          });
+          
+          return seasons.sort((a, b) => a.order - b.order);
+      } catch (error) {
+          console.error("Error getting seasons list:", error);
+          return [];
       }
-
-      const results = await Promise.all(checkPromises);
-      results.forEach((season) => {
-        if (season) seasons.push(season);
-      });
-
-      return seasons.sort((a, b) => a.order - b.order);
-    } catch (error) {
-      console.error("Error getting seasons list:", error);
-      return [];
-    }
   },
 
   async getSeasonInfo(seasonId) {
