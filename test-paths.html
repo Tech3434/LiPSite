@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Path Test</title>
+</head>
+<body>
+    <h1>Path Testing for LiPSite</h1>
+    
+    <div id="results"></div>
+    
+    <script>
+        const repoName = 'LiPSite';
+        const baseURL = window.location.origin + '/' + repoName + '/';
+        
+        const testPaths = [
+            'styles/main.css',
+            'scripts/main.js',
+            'data/info/server_config.txt',
+            'data/seasons/season1/guides.txt',
+            'images/error.png',
+            './styles/main.css',
+            './scripts/main.js',
+            './data/info/server_config.txt',
+            '/LiPSite/styles/main.css',
+            '/LiPSite/scripts/main.js',
+            '/LiPSite/data/info/server_config.txt',
+            '/styles/main.css',
+            '/scripts/main.js'
+        ];
+        
+        const resultsDiv = document.getElementById('results');
+        
+        async function testPath(path) {
+            const fullPath = path.startsWith('/') ? window.location.origin + path : baseURL + path;
+            
+            try {
+                const response = await fetch(fullPath, { method: 'HEAD' });
+                return {
+                    path: path,
+                    fullPath: fullPath,
+                    status: response.status,
+                    ok: response.ok,
+                    contentType: response.headers.get('content-type')
+                };
+            } catch (error) {
+                return {
+                    path: path,
+                    fullPath: fullPath,
+                    status: 'Error',
+                    ok: false,
+                    error: error.message
+                };
+            }
+        }
+        
+        async function runTests() {
+            resultsDiv.innerHTML = '<h2>Testing paths...</h2>';
+            
+            for (const path of testPaths) {
+                const result = await testPath(path);
+                
+                const div = document.createElement('div');
+                div.style.margin = '10px';
+                div.style.padding = '10px';
+                div.style.border = '1px solid #ccc';
+                div.style.backgroundColor = result.ok ? '#d4edda' : '#f8d7da';
+                
+                div.innerHTML = `
+                    <strong>${result.path}</strong><br>
+                    Full: ${result.fullPath}<br>
+                    Status: ${result.status}<br>
+                    ${result.contentType ? 'Type: ' + result.contentType + '<br>' : ''}
+                    ${result.error ? 'Error: ' + result.error + '<br>' : ''}
+                    ${result.ok ? '✅ OK' : '❌ FAILED'}
+                `;
+                
+                resultsDiv.appendChild(div);
+            }
+        }
+        
+        runTests();
+    </script>
+</body>
+</html>
