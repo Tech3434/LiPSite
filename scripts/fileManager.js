@@ -327,29 +327,31 @@ const FileManager = {
   async getActsForSeason(seasonId) {
     try {
       const sanitizedSeason = sanitizePath(seasonId);
-      const actsCount = await countFolders(
-        `data/seasons/${sanitizedSeason}/acts/act`,
-      );
-
+      
+      // Вместо подсчета папок, проверяем акты последовательно
+      const maxActsToCheck = 10; // Максимально предполагаем 10 актов
       const acts = [];
+      
       const checkPromises = [];
-
-      for (let i = 1; i <= actsCount; i++) {
+      for (let i = 1; i <= maxActsToCheck; i++) {
         const actId = `act${i}`;
         checkPromises.push(
           fetchWithCache(
             `data/seasons/${sanitizedSeason}/acts/${actId}/story.txt`,
           )
-            .then(() => actId)
-            .catch(() => null),
+            .then(() => actId) // Если файл существует, возвращаем actId
+            .catch(() => null), // Если ошибка, возвращаем null
         );
       }
-
+      
       const results = await Promise.all(checkPromises);
+      
+      // Фильтруем null значения и добавляем найденные акты
       results.forEach((actId) => {
         if (actId) acts.push(actId);
       });
-
+      
+      // Сортируем акты по номеру
       return acts.sort((a, b) => {
         const numA = parseInt(a.replace(/\D/g, "")) || 0;
         const numB = parseInt(b.replace(/\D/g, "")) || 0;
