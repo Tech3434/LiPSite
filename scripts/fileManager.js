@@ -1,6 +1,12 @@
 // fileManager.js - Исправленная версия для GitHub Pages
-import { sanitizePath, validateUrl, sanitizeHTML } from "./utils.js";
+import { sanitizePath, validateUrl, sanitizeHTML, normalizeImagePath } from "./utils.js";
 import { parseMarkdownToHTML, initCollapsibles } from "./domUtils.js";
+
+
+// Мне похуй
+const BASE_PATH = window.location.pathname.includes("/LiPSite")
+  ? "/LiPSite/"
+  : "./";
 
 const CACHE_DURATION = 5 * 60 * 1000;
 const cache = new Map();
@@ -221,12 +227,16 @@ const FileManager = {
       lines.forEach((line) => {
         const lowerLine = line.toLowerCase();
         if (lowerLine.startsWith("background:")) {
-          const url = line.substring("background:".length).trim();
+          let url = line.substring("background:".length).trim();
+          
           if (url) {
+            // ИСПРАВЛЕНИЕ: Используем универсальную нормализацию
+            const normalizedUrl = normalizeImagePath(url);
+            
             try {
-              theme.backgroundImage = validateUrl(url);
+              theme.backgroundImage = validateUrl(normalizedUrl);
             } catch {
-              theme.backgroundImage = url;
+              theme.backgroundImage = normalizedUrl;
             }
           }
         } else if (lowerLine.startsWith("primary:")) {

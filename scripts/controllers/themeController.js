@@ -1,4 +1,5 @@
 import AppState from "../appState.js";
+import { normalizeImagePath } from "../utils.js";
 
 class ThemeController {
   constructor(app) {
@@ -282,6 +283,9 @@ class ThemeController {
     return new Promise((resolve) => {
       const img = new Image();
 
+      // ИСПРАВЛЕНИЕ: Используем универсальную нормализацию
+      const normalizedUrl = normalizeImagePath(url);
+
       // Начинаем загрузку - добавляем класс loading
       this.app.elements.seasonBanner.classList.add("loading");
 
@@ -289,7 +293,7 @@ class ThemeController {
         // Плавное изменение фона
         this.app.elements.seasonBanner.style.transition =
           "background-image 0.5s ease";
-        this.app.elements.seasonBanner.style.backgroundImage = `url('${url}')`;
+        this.app.elements.seasonBanner.style.backgroundImage = `url('${normalizedUrl}')`;
 
         setTimeout(() => {
           this.app.elements.seasonBanner.classList.remove("loading");
@@ -298,30 +302,49 @@ class ThemeController {
       };
 
       img.onerror = () => {
-        // Пробуем альтернативный путь без точки
-        if (url.startsWith("./")) {
-          const altUrl = url.substring(2); // Убираем ./
-          const altImg = new Image();
-          altImg.onload = () => {
-            this.app.elements.seasonBanner.style.backgroundImage = `url('${altUrl}')`;
-            this.app.elements.seasonBanner.classList.remove("loading");
-            resolve(true);
-          };
-          altImg.onerror = () => {
-            this.app.elements.seasonBanner.style.backgroundImage = `url('./images/error.png')`;
-            this.app.elements.seasonBanner.classList.remove("loading");
-            resolve(false);
-          };
-          altImg.src = altUrl;
-        } else {
-          this.app.elements.seasonBanner.style.backgroundImage = `url('./images/error.png')`;
-          this.app.elements.seasonBanner.classList.remove("loading");
-          resolve(false);
-        }
+        // Пробуем различные варианты путей
+        const urlVariants = [
+          normalizedUrl,
+          url, // оригинальный URL
+          normalizeImagePath(`./${url.replace(/^\.\//, "")}`),
+          normalizeImagePath(`/${url.replace(/^\//, "")}`),
+          "./images/error.png", // фолбэк
+        ];
+
+        // Убираем дубликаты
+        const uniqueUrls = [...new Set(urlVariants.filter(Boolean))];
+
+        this.tryUrlVariants(uniqueUrls, resolve);
       };
 
-      img.src = url;
+      img.src = normalizedUrl;
     });
+  }
+
+  tryUrlVariants(urls, resolve, index = 0) {
+    if (index >= urls.length) {
+      // Все варианты не сработали
+      this.app.elements.seasonBanner.style.backgroundImage = `url('./images/error.png')`;
+      this.app.elements.seasonBanner.classList.remove("loading");
+      resolve(false);
+      return;
+    }
+
+    const img = new Image();
+    const url = urls[index];
+
+    img.onload = () => {
+      this.app.elements.seasonBanner.style.backgroundImage = `url('${url}')`;
+      this.app.elements.seasonBanner.classList.remove("loading");
+      resolve(true);
+    };
+
+    img.onerror = () => {
+      // Пробуем следующий URL
+      this.tryUrlVariants(urls, resolve, index + 1);
+    };
+
+    img.src = url;
   }
 }
 
