@@ -1,4 +1,4 @@
-background: /images/seasons/s1a1.png
+background: images/seasons/s1a1.png
 primary: #222629
 secondary: #1F6521
 accent: #61892F
