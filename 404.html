@@ -7,13 +7,28 @@
         // GitHub Pages SPA fallback
         const segmentCount = 0;
         const l = window.location;
-        l.replace(
-            l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
-            l.pathname.split('/').slice(0, 1 + segmentCount).join('/') + '/?p=/' +
-            l.pathname.slice(1).split('/').slice(segmentCount).join('/').replace(/&/g, '~and~') +
-            (l.search ? '&q=' + l.search.slice(1).replace(/&/g, '~and~') : '') +
-            l.hash
-        );
+        
+        // Определяем имя репозитория для GitHub Pages
+        const pathParts = l.pathname.split('/');
+        const repoName = pathParts[1];
+        
+        let redirectPath;
+        if (l.hostname.includes('github.io') && repoName) {
+            // Для GitHub Pages: /repo-name/...
+            redirectPath = '/' + repoName + '/?p=' + l.pathname.split('/').slice(2).join('/').replace(/&/g, '~and~');
+        } else {
+            // Для локального сервера
+            redirectPath = l.pathname.split('/').slice(0, 1 + segmentCount).join('/') + '/?p=/' +
+                l.pathname.slice(1).split('/').slice(segmentCount).join('/').replace(/&/g, '~and~');
+        }
+        
+        if (l.search) {
+            redirectPath += '&q=' + l.search.slice(1).replace(/&/g, '~and~');
+        }
+        
+        redirectPath += l.hash;
+        
+        l.replace(l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') + redirectPath);
     </script>
 </head>
 <body>

@@ -4,10 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Лапочки и Пупсики</title>
-    <!-- Base tag for GitHub Pages -->
-    <base href="/">
     
-    <link rel="stylesheet" href="styles/main.css" />
+    <!-- Убрали base href -->
+    
+    <link rel="stylesheet" href="./styles/main.css" />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
@@ -162,6 +162,18 @@
     <!-- GitHub Pages SPA fix -->
     <script>
       (function() {
+        // Исправляем пути для GitHub Pages
+        const repoName = window.location.pathname.split('/')[1];
+        const isGitHubPages = window.location.hostname.includes('github.io');
+        
+        if (isGitHubPages && repoName && !window.location.pathname.endsWith('/' + repoName + '/')) {
+          // Перенаправляем в корень репозитория
+          const newPath = '/' + repoName + '/';
+          if (window.location.pathname !== newPath) {
+            window.location.replace(newPath);
+          }
+        }
+        
         if (window.location.search.includes('?p=')) {
           var path = window.location.search.split('?p=')[1].split('&')[0].replace(/~and~/g, '&');
           var hash = window.location.hash;
@@ -170,6 +182,6 @@
       })();
     </script>
 
-    <script type="module" src="scripts/main.js"></script>
+    <script type="module" src="./scripts/main.js"></script>
   </body>
 </html>
