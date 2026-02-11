@@ -401,31 +401,22 @@ const processInlineFormatting = (text) => {
   let result = text;
 
   // Обработка форматирования текста в правильном порядке
-  /* // 1. Сложные комбинации (самые специфичные сначала)
-  result = result.replace(
-    /__\*\*\*(.+?)\*\*\*__/g,
-    "<u><strong><em>$1</em></strong></u>",
-  );
-  result = result.replace(/__\*\*(.+?)\*\*__/g, "<u><strong>$1</strong></u>");
-  result = result.replace(/__\*(.+?)\*__/g, "<u><em>$1</em></u>");*/
+  result = result.replace(/===(.+?)===/g, "<center>$1</center>");
 
-  // 2. Тройные звездочки
+  result = result.replace(/\^\^\^(.+?)\^\^\^/g, `<span style="font-size: var(--size-4xl)">$1</span>`);
+  result = result.replace(/\^\^(.+?)\^\^/g, `<span style="font-size: var(--size-3xl)">$1</span>`);
+  result = result.replace(/\^(.+?)\^/g, `<span style="font-size: var(--size-2xl)">$1</span>`);
+
   result = result.replace(/\*\*\*(.+?)\*\*\*/g, "<strong><em>$1</em></strong>");
-
-  // 3. Двойные звездочки (жирный)
   result = result.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
-
-  // 4. Одинарные звездочки/подчеркивания (курсив)
   result = result.replace(/\*(.+?)\*/g, "<em>$1</em>");
 
-  // 5. Двойное подчеркивание (подчеркнутый)
   result = result.replace(/__(.+?)__/g, "<u>$1</u>");
 
-  // 6. Зачеркивание
   result = result.replace(/~~(.+?)~~/g, "<s>$1</s>");
 
   return result;
-};
+};;
 
 // Глобальные функции для работы collapsible sections
 window.toggleInlineCollapsible = function (id) {

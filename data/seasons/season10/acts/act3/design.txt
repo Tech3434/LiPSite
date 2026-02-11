@@ -1,0 +1,5 @@
+background: /images/history/historyTitle3.png
+primary: #1a1a1a
+secondary: #2a2a2a
+accent: #8b0000
+text: #FFFFFF
