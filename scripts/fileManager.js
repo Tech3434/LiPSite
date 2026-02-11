@@ -1,4 +1,4 @@
-// fileManager.js
+// fileManager.js - Исправленная версия для GitHub Pages
 import { sanitizePath, validateUrl, sanitizeHTML } from "./utils.js";
 import { parseMarkdownToHTML, initCollapsibles } from "./domUtils.js";
 
@@ -6,17 +6,14 @@ const CACHE_DURATION = 5 * 60 * 1000;
 const cache = new Map();
 const pendingRequests = new Map();
 
+// Упрощенная функция fetch - ВСЕГДА использует относительные пути
 const fetchWithCache = async (url, options = {}) => {
-  // Для GitHub Pages с именем репозитория LiPSite
-  let normalizedUrl = url;
+  // Нормализуем URL: убираем начальный / если есть
+  let normalizedUrl = url.startsWith("/") ? url.substring(1) : url;
 
-  // Если URL начинается с точки, оставляем как есть
-  if (url.startsWith("./")) {
-    normalizedUrl = url;
-  }
-  // Если URL начинается с /, добавляем /LiPSite
-  else if (url.startsWith("/")) {
-    normalizedUrl = "/LiPSite" + url;
+  // Если путь начинается с LiPSite/, убираем это
+  if (normalizedUrl.startsWith("LiPSite/")) {
+    normalizedUrl = normalizedUrl.substring(8);
   }
 
   const cacheKey = `${normalizedUrl}:${JSON.stringify(options)}`;
@@ -37,9 +34,12 @@ const fetchWithCache = async (url, options = {}) => {
   const request = fetch(normalizedUrl, options)
     .then(async (response) => {
       if (!response.ok) {
-        // Пробуем альтернативный путь без /LiPSite (для локального сервера)
-        if (response.status === 404 && normalizedUrl.startsWith("/LiPSite/")) {
-          const altUrl = normalizedUrl.replace("/LiPSite", "");
+        // Пробуем с ./ если не начинается с него
+        if (
+          !normalizedUrl.startsWith("./") &&
+          !normalizedUrl.startsWith("http")
+        ) {
+          const altUrl = "./" + normalizedUrl;
           try {
             const altResponse = await fetch(altUrl, options);
             if (altResponse.ok) {
@@ -55,6 +55,7 @@ const fetchWithCache = async (url, options = {}) => {
           `HTTP ${response.status}: ${response.statusText} for ${normalizedUrl}`,
         );
       }
+
       const data = await response.text();
       cache.set(cacheKey, { data, timestamp: now });
       return data;
@@ -67,21 +68,20 @@ const fetchWithCache = async (url, options = {}) => {
   return request;
 };
 
-// Оптимизированная функция подсчета папок
+// Функция подсчета папок
 const countFolders = async (basePath) => {
   try {
     const sanitizedPath = sanitizePath(basePath);
 
-    // Нормализуем путь для GitHub Pages с LiPSite
-    let normalizedPath = sanitizedPath;
-    if (sanitizedPath.startsWith("/")) {
-      normalizedPath = "/LiPSite" + sanitizedPath;
-    }
+    // Убираем начальный / если есть
+    const cleanPath = sanitizedPath.startsWith("/")
+      ? sanitizedPath.substring(1)
+      : sanitizedPath;
 
-    // Проверяем первые несколько папок быстро
+    // Проверяем первые 10 папок
     const quickCheckPromises = [];
     for (let i = 1; i <= 10; i++) {
-      const testPath = `${normalizedPath}${i}/`;
+      const testPath = `${cleanPath}${i}/`;
       quickCheckPromises.push(
         fetch(testPath, { method: "HEAD" })
           .then((response) => (response.ok ? i : 0))
@@ -92,19 +92,18 @@ const countFolders = async (basePath) => {
     const quickResults = await Promise.all(quickCheckPromises);
     const maxQuickFound = Math.max(...quickResults);
 
-    // Если не нашли до 10, значит больше нет сезонов
     if (maxQuickFound < 10) {
       return maxQuickFound;
     }
 
-    // Если есть до 10, продолжаем бинарный поиск
+    // Бинарный поиск
     let left = 11;
-    let right = 50; // Максимально предполагаем 50 сезонов
+    let right = 50;
     let lastFound = maxQuickFound;
 
     while (left <= right) {
       const mid = Math.floor((left + right) / 2);
-      const testPath = `${normalizedPath}${mid}/`;
+      const testPath = `${cleanPath}${mid}/`;
 
       try {
         const response = await fetch(testPath, { method: "HEAD" });
@@ -129,7 +128,7 @@ const countFolders = async (basePath) => {
 const FileManager = {
   async loadServerConfig() {
     try {
-      const content = await fetchWithCache("./data/info/server_config.txt");
+      const content = await fetchWithCache("data/info/server_config.txt");
       const lines = content
         .split("\n")
         .map((line) => line.trim())
@@ -162,40 +161,37 @@ const FileManager = {
 
   async loadOfficialInfo() {
     try {
-      const content = await fetchWithCache("./data/info/official_info.txt");
-
-      // Используем parseMarkdownToHTML для обработки Discord-разметки
+      const content = await fetchWithCache("data/info/official_info.txt");
       const html = parseMarkdownToHTML(content, "#ffffff");
 
       const officialInfo = document.getElementById("official-info");
       if (officialInfo) {
         officialInfo.innerHTML = `
-        <div class="official-info-wrapper">
-          <div class="official-content prose max-w-full">
-            ${html}
-          </div>
-        </div>
-      `;
+                <div class="official-info-wrapper">
+                    <div class="official-content prose max-w-full">
+                        ${html}
+                    </div>
+                </div>
+                `;
         officialInfo.classList.remove("hidden");
 
-        // Инициализируем collapsible секции если есть
         if (html.includes("collapsible-inline")) {
           setTimeout(() => initCollapsibles(officialInfo), 10);
         }
       }
     } catch (error) {
-      console.log(error);
+      console.log("Error loading official info:", error);
       const officialInfo = document.getElementById("official-info");
       if (officialInfo) {
         officialInfo.innerHTML = `
-        <div class="official-info-wrapper">
-          <div class="content-card">
-            <p class="text-lg" style="color: white">
-              Информация о сервере будет доступна в ближайшее время.
-            </p>
-          </div>
-        </div>
-      `;
+                <div class="official-info-wrapper">
+                    <div class="content-card">
+                        <p class="text-lg" style="color: white">
+                            Информация о сервере будет доступна в ближайшее время.
+                        </p>
+                    </div>
+                </div>
+                `;
         officialInfo.classList.remove("hidden");
       }
     }
@@ -207,7 +203,7 @@ const FileManager = {
       const sanitizedAct = sanitizePath(actId);
 
       const content = await fetchWithCache(
-        `./data/seasons/${sanitizedSeason}/acts/${sanitizedAct}/design.txt`,
+        `data/seasons/${sanitizedSeason}/acts/${sanitizedAct}/design.txt`,
       ).catch(() => null);
 
       if (!content) {
@@ -276,15 +272,14 @@ const FileManager = {
 
   async getSeasonsList() {
     try {
-      const seasonsCount = await countFolders("./data/seasons/season");
+      const seasonsCount = await countFolders("data/seasons/season");
       const seasons = [];
 
-      // Параллельная проверка всех сезонов
       const checkPromises = [];
       for (let i = 1; i <= seasonsCount; i++) {
         const seasonId = `season${i}`;
         checkPromises.push(
-          fetchWithCache(`./data/seasons/${seasonId}/season_info.txt`)
+          fetchWithCache(`data/seasons/${seasonId}/season_info.txt`)
             .then((content) => {
               const lines = content.split("\n");
               const seasonName = lines[0]?.trim() || `Сезон ${i}`;
@@ -314,7 +309,7 @@ const FileManager = {
     try {
       const sanitizedSeason = sanitizePath(seasonId);
       const content = await fetchWithCache(
-        `./data/seasons/${sanitizedSeason}/season_info.txt`,
+        `data/seasons/${sanitizedSeason}/season_info.txt`,
       );
 
       const lines = content
@@ -325,14 +320,14 @@ const FileManager = {
       if (lines.length < 2) {
         return {
           title: `Сезон ${seasonId.replace("season", "")}`,
-          bannerImage: "./images/error.png",
+          bannerImage: "images/error.png",
           synopsis: "Описание отсутствует.",
         };
       }
 
       return {
         title: lines[0] || `Сезон ${seasonId.replace("season", "")}`,
-        bannerImage: lines[1] || "./images/error.png",
+        bannerImage: lines[1] || "images/error.png",
         synopsis: lines.slice(2).join("\n") || "Описание отсутствует.",
       };
     } catch (error) {
@@ -345,7 +340,7 @@ const FileManager = {
     try {
       const sanitizedSeason = sanitizePath(seasonId);
       const actsCount = await countFolders(
-        `./data/seasons/${sanitizedSeason}/acts/act`,
+        `data/seasons/${sanitizedSeason}/acts/act`,
       );
 
       const acts = [];
@@ -355,7 +350,7 @@ const FileManager = {
         const actId = `act${i}`;
         checkPromises.push(
           fetchWithCache(
-            `./data/seasons/${sanitizedSeason}/acts/${actId}/story.txt`,
+            `data/seasons/${sanitizedSeason}/acts/${actId}/story.txt`,
           )
             .then(() => actId)
             .catch(() => null),
@@ -384,7 +379,7 @@ const FileManager = {
       const sanitizedAct = sanitizePath(actId);
 
       const content = await fetchWithCache(
-        `./data/seasons/${sanitizedSeason}/acts/${sanitizedAct}/story.txt`,
+        `data/seasons/${sanitizedSeason}/acts/${sanitizedAct}/story.txt`,
       );
 
       const lines = content.split("\n");
@@ -405,7 +400,7 @@ const FileManager = {
       const sanitizedAct = sanitizePath(actId);
 
       const content = await fetchWithCache(
-        `./data/seasons/${sanitizedSeason}/acts/${sanitizedAct}/players.txt`,
+        `data/seasons/${sanitizedSeason}/acts/${sanitizedAct}/players.txt`,
       );
 
       const lines = content.split("\n").filter((line) => line.trim() !== "");
@@ -470,7 +465,7 @@ const FileManager = {
 
       try {
         const listContent = await fetchWithCache(
-          `./data/seasons/${sanitizedSeason}/guides.txt`,
+          `data/seasons/${sanitizedSeason}/guides.txt`,
         );
 
         const lines = listContent
@@ -486,22 +481,21 @@ const FileManager = {
 
           try {
             const guideContent = await fetchWithCache(
-              `./data/seasons/${sanitizedSeason}/guides/${fileName}.txt`,
+              `data/seasons/${sanitizedSeason}/guides/${fileName}.txt`,
             );
 
             const contentLines = guideContent.split("\n");
-            const coverImage = contentLines[0]?.trim() || "./images/error.png";
+            const coverImage = contentLines[0]?.trim() || "images/error.png";
             const description =
               contentLines[1]?.trim() || "Описание отсутствует";
-            // Всё остальное - контент гайда (сохраняем все переносы строк)
             const fullContent = contentLines.slice(2).join("\n").trim();
 
             return {
               id: fileName.replace(".txt", ""),
               title: title,
-              description: description, // Вторая строка - описание
+              description: description,
               image: coverImage,
-              content: fullContent, // Остальное - контент
+              content: fullContent,
             };
           } catch (error) {
             console.warn(`Guide ${fileName} not found:`, error);
@@ -509,7 +503,7 @@ const FileManager = {
               id: fileName.replace(".txt", ""),
               title: title,
               description: "Гайд не найден или поврежден",
-              image: "./images/error.png",
+              image: "images/error.png",
               content: "# Гайд недоступен\n\nГайд временно недоступен.",
             };
           }
@@ -524,7 +518,7 @@ const FileManager = {
           id: "no_guides",
           title: "Гайды не найдены",
           description: "Гайды для этого сезона пока не добавлены.",
-          image: "./images/error.png",
+          image: "images/error.png",
           content:
             "# Гайды не найдены\n\nГайды для этого сезона пока не добавлены администрацией сервера.",
         });
@@ -538,7 +532,7 @@ const FileManager = {
           id: "error",
           title: "Ошибка загрузки",
           description: "Не удалось загрузить список гайдов",
-          image: "./images/error.png",
+          image: "images/error.png",
           content: "# Ошибка\n\nНе удалось загрузить гайды. Попробуйте позже.",
         },
       ];
@@ -551,7 +545,7 @@ const FileManager = {
       const sanitizedGuide = sanitizePath(guideId);
 
       const content = await fetchWithCache(
-        `./data/seasons/${sanitizedSeason}/guides/${sanitizedGuide}.txt`,
+        `data/seasons/${sanitizedSeason}/guides/${sanitizedGuide}.txt`,
       );
 
       const lines = content.split("\n");

@@ -196,7 +196,7 @@ class ThemeController {
         // Пробуем загрузить background.txt (исправленный путь для GitHub Pages)
         try {
           const response = await fetch(
-            `./data/seasons/${state.currentSeason}/acts/${state.currentAct}/background.txt`,
+            `data/seasons/${state.currentSeason}/acts/${state.currentAct}/background.txt`,
           );
           if (response.ok) {
             const text = await response.text();
@@ -210,7 +210,7 @@ class ThemeController {
       // Загружаем название акта из story.txt (первая строка) - исправленный путь
       try {
         const storyResponse = await fetch(
-          `./data/seasons/${state.currentSeason}/acts/${state.currentAct}/story.txt`,
+          `data/seasons/${state.currentSeason}/acts/${state.currentAct}/story.txt`,
         );
         if (storyResponse.ok) {
           const storyText = await storyResponse.text();
