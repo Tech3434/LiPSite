@@ -7,10 +7,16 @@ const cache = new Map();
 const pendingRequests = new Map();
 
 const fetchWithCache = async (url, options = {}) => {
-  // Преобразуем путь для GitHub Pages
+  // Для GitHub Pages с именем репозитория LiPSite
   let normalizedUrl = url;
-  if (url.startsWith("/")) {
-    normalizedUrl = "." + url; // Делаем относительным
+
+  // Если URL начинается с точки, оставляем как есть
+  if (url.startsWith("./")) {
+    normalizedUrl = url;
+  }
+  // Если URL начинается с /, добавляем /LiPSite
+  else if (url.startsWith("/")) {
+    normalizedUrl = "/LiPSite" + url;
   }
 
   const cacheKey = `${normalizedUrl}:${JSON.stringify(options)}`;
@@ -31,9 +37,9 @@ const fetchWithCache = async (url, options = {}) => {
   const request = fetch(normalizedUrl, options)
     .then(async (response) => {
       if (!response.ok) {
-        // Для GitHub Pages: пробуем альтернативный путь без точки
-        if (response.status === 404 && url.startsWith("/")) {
-          const altUrl = url.substring(1); // Убираем первый слеш
+        // Пробуем альтернативный путь без /LiPSite (для локального сервера)
+        if (response.status === 404 && normalizedUrl.startsWith("/LiPSite/")) {
+          const altUrl = normalizedUrl.replace("/LiPSite", "");
           try {
             const altResponse = await fetch(altUrl, options);
             if (altResponse.ok) {
@@ -65,10 +71,12 @@ const fetchWithCache = async (url, options = {}) => {
 const countFolders = async (basePath) => {
   try {
     const sanitizedPath = sanitizePath(basePath);
-    // Нормализуем путь для GitHub Pages
-    const normalizedPath = sanitizedPath.startsWith("/")
-      ? "." + sanitizedPath
-      : sanitizedPath;
+
+    // Нормализуем путь для GitHub Pages с LiPSite
+    let normalizedPath = sanitizedPath;
+    if (sanitizedPath.startsWith("/")) {
+      normalizedPath = "/LiPSite" + sanitizedPath;
+    }
 
     // Проверяем первые несколько папок быстро
     const quickCheckPromises = [];

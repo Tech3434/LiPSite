@@ -4,25 +4,25 @@
     <meta charset="utf-8">
     <title>Redirecting...</title>
     <script>
-        // GitHub Pages SPA fallback
-        const segmentCount = 0;
+        // GitHub Pages SPA fallback for LiPSite
         const l = window.location;
         
-        // Определяем имя репозитория для GitHub Pages
+        // Для LiPSite на GitHub Pages
         const pathParts = l.pathname.split('/');
-        const repoName = pathParts[1];
+        const repoName = 'LiPSite'; // Имя репозитория
         
         let redirectPath;
-        if (l.hostname.includes('github.io') && repoName) {
-            // Для GitHub Pages: /repo-name/...
-            redirectPath = '/' + repoName + '/?p=' + l.pathname.split('/').slice(2).join('/').replace(/&/g, '~and~');
+        if (l.hostname.includes('github.io')) {
+            // Перенаправляем в корень LiPSite
+            redirectPath = '/' + repoName + '/?p=' + 
+                l.pathname.split('/').slice(2).join('/').replace(/&/g, '~and~');
         } else {
             // Для локального сервера
-            redirectPath = l.pathname.split('/').slice(0, 1 + segmentCount).join('/') + '/?p=/' +
-                l.pathname.slice(1).split('/').slice(segmentCount).join('/').replace(/&/g, '~and~');
+            redirectPath = '/?p=/' + 
+                l.pathname.slice(1).split('/').join('/').replace(/&/g, '~and~');
         }
         
-        if (l.search) {
+        if (l.search && !l.search.includes('?p=')) {
             redirectPath += '&q=' + l.search.slice(1).replace(/&/g, '~and~');
         }
         
