@@ -11,7 +11,7 @@ collapsible](
 
 [%Многострочное
 описание
-изображения](images/guides/aurora.png)
+изображения](images/guides/aquanna.png)
 
 [?Многострочная
 подсказка](
@@ -72,7 +72,7 @@ Masked links
 
 [$Текст с гиперссылкой](https://www.youtube.com/watch?v=ZT1PRLiJmH8)
 
-[%Текст под картинкой](images/guides/aurora.png)
+[%Текст под картинкой](images/guides/aquanna.png)
 
 Full divider
 -----
