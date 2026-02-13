@@ -1,78 +1,25 @@
 images/guides/nope
-УДАЛИТЬ НА ПРОДЕ
-[#Многострочный
-заголовок
-collapsible](
-Скрытый контент
-на несколько строк
-с **жирным** текстом
-и [первой строкой](#тест)
-второй строкой)
+ТЕСТОВОЕ, маркдаун гайдов
 
-[%Многострочное
-описание
-изображения](images/guides/aquanna.png)
+Bold italics: ***Your text***
+Bold: **Your text**
+Italics: *Your text*
 
-[?Многострочная
-подсказка](
-Подробное описание
-на нескольких
-строках)
+Bold underline italics: __***Your text***__
+Underline bold: __**Your text**__
+Underline italics: __*Your text*__
 
-[$Текст ссылки
-на несколько
-строк](
-https://example.com)
+Strikethrough: ~~Your text~~
 
-Bold
-**Your text**
+Underline: __Your text__
 
-italics
-*Your text*, _Your text_
+Spoilers: ||Your text||
 
-Strikethrough
-~~Your text~~
+===Center===
 
-Underline
-__Your text__
-
-Bold italics
-***Your text***
-
-Underline italics
-__*Your text*__
-
-Underline bold
-__**Your text**__
-
-Bold underline italics
-__***Your text***__
-
-Big header
-# Your text
-
-Medium header
-## Your text
-
-Small header
-### Your text
-
-Subtext
--# Your text
-
-Lists:
-– Your text (1)
-– Your text (2)
-
-Spoilers
-||Your text||
-
-Masked links
-[Your text](https://www.youtube.com/watch?v=ZT1PRLiJmH8)
-
-[$Текст с гиперссылкой](https://www.youtube.com/watch?v=ZT1PRLiJmH8)
-
-[%Текст под картинкой](images/guides/aquanna.png)
+Masked links: [$Link Text](https://www.youtube.com/watch?v=ZT1PRLiJmH8)
+Hint: [?Text](Hint)
+[%Image Text](images/guides/aquanna.png)
 
 Full divider
 -----
@@ -80,8 +27,17 @@ Full divider
 Divider
 ---
 
-Collapsible sections
-[#Текст который виден если кнопка не нажата](Текст который [?раскрывается](TEST) если нажать на кнопку)
+Collapsible sections:
+[#Title Text](Contained Text)
 
-Hint
-[?Простой текст](Подсказка которая вылазиет если навестись на текст)
+# Big header
+
+## Medium header
+
+### Small header
+
+-# Subtext
+
+Lists:
+– Your text (1)
+– Your text (2)

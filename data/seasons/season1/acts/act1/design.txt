@@ -1,5 +1,5 @@
 background: images/seasons/s1a1.png
 primary: #222629
 secondary: #1F6521
-accent: #61892F
+accent: #4f6d2b
 text: #F8F8FF

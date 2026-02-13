@@ -1,4 +1,3 @@
-ds_markdown: Проверка Дискорда
 how_to_install: Как установить сборку/билд
 races: Расы
 classes: Классы
