@@ -50,4 +50,5 @@ const AppState = (() => {
   };
 })();
 
+window.appState = AppState;
 export default AppState;

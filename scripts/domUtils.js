@@ -107,14 +107,22 @@ const processInlineMarkdown = (text) => {
   let result = text;
 
   // Сначала обрабатываем обычные ссылки [текст](url)
-  // Важно: не обрабатываем маркдаун внутри URL
   result = result.replace(
     /\[([^\]]+)\]\(([^)]+)\)/g,
     (match, linkText, linkUrl) => {
       // Обрабатываем форматирование в тексте ссылки, но не в URL
       const processedLinkText = processInlineFormatting(linkText);
-      // URL используем как есть, без обработки
-      return `<a href="${linkUrl}" class="link-masked text-link hover:text-link-hover visited:text-link-visited underline" target="_blank" rel="noopener noreferrer">${processedLinkText}</a>`;
+
+      // Проверяем, локальный ли это URL (начинается с #)
+      const isLocalUrl = linkUrl.startsWith("#");
+
+      if (isLocalUrl) {
+        // Для локальных ссылок - без target="_blank"
+        return `<a href="${linkUrl}" class="link-masked text-link hover:text-link-hover visited:text-link-visited underline local-link" data-local-href="${linkUrl.substring(1)}">${processedLinkText}</a>`;
+      } else {
+        // Для внешних ссылок открываем в новой вкладке
+        return `<a href="${linkUrl}" class="link-masked text-link hover:text-link-hover visited:text-link-visited underline" target="_blank" rel="noopener noreferrer">${processedLinkText}</a>`;
+      }
     },
   );
 
@@ -289,8 +297,17 @@ const processMarkdownInCollapsible = (text) => {
       (match, linkText, linkUrl) => {
         // Обрабатываем форматирование в тексте ссылки, но не в URL
         const processedLinkText = processInlineFormatting(linkText);
-        // URL используем как есть, без обработки
-        return `<a href="${linkUrl}" class="link-masked text-link hover:text-link-hover visited:text-link-visited underline" target="_blank" rel="noopener noreferrer">${processedLinkText}</a>`;
+
+        // Проверяем, локальный ли это URL (начинается с #)
+        const isLocalUrl = linkUrl.startsWith("#");
+
+        if (isLocalUrl) {
+          // Для локальных ссылок - без target="_blank"
+          return `<a href="${linkUrl}" class="link-masked text-link hover:text-link-hover visited:text-link-visited underline local-link" data-local-href="${linkUrl.substring(1)}">${processedLinkText}</a>`;
+        } else {
+          // Для внешних ссылок открываем в новой вкладке
+          return `<a href="${linkUrl}" class="link-masked text-link hover:text-link-hover visited:text-link-visited underline" target="_blank" rel="noopener noreferrer">${processedLinkText}</a>`;
+        }
       },
     );
 
@@ -320,7 +337,7 @@ const createSpecialBlockHTML = (type, content, url) => {
   const processedContent = processMultilineText(content);
 
   // Для URL не применяем обработку маркдауна - используем как есть
-  const processedUrl = url; // Изменено: не вызываем processMultilineText для URL
+  const processedUrl = url;
 
   switch (type) {
     case "#": // Collapsible
@@ -387,7 +404,16 @@ const createSpecialBlockHTML = (type, content, url) => {
 
     case "$": // Ссылка
       // Для ссылок URL используется как есть, без обработки маркдауна
-      return `<a href="${processedUrl}" class="link-masked text-link hover:text-link-hover visited:text-link-visited underline" target="_blank" rel="noopener noreferrer">${processedContent}</a>`;
+      // Проверяем, локальный ли это URL
+      const isLocalUrl = processedUrl.startsWith("#");
+
+      if (isLocalUrl) {
+        // Для локальных ссылок - без target="_blank"
+        return `<a href="${processedUrl}" class="link-masked text-link hover:text-link-hover visited:text-link-visited underline local-link" data-local-href="${processedUrl.substring(1)}">${processedContent}</a>`;
+      } else {
+        // Для внешних ссылок открываем в новой вкладке
+        return `<a href="${processedUrl}" class="link-masked text-link hover:text-link-hover visited:text-link-visited underline" target="_blank" rel="noopener noreferrer">${processedContent}</a>`;
+      }
 
     default:
       return `[${type}${content}](${url})`;
@@ -403,9 +429,18 @@ const processInlineFormatting = (text) => {
   // Обработка форматирования текста в правильном порядке
   result = result.replace(/===(.+?)===/g, "<center>$1</center>");
 
-  result = result.replace(/\^\^\^(.+?)\^\^\^/g, `<span style="font-size: var(--size-4xl)">$1</span>`);
-  result = result.replace(/\^\^(.+?)\^\^/g, `<span style="font-size: var(--size-3xl)">$1</span>`);
-  result = result.replace(/\^(.+?)\^/g, `<span style="font-size: var(--size-2xl)">$1</span>`);
+  result = result.replace(
+    /\^\^\^(.+?)\^\^\^/g,
+    `<span style="font-size: var(--size-4xl)">$1</span>`,
+  );
+  result = result.replace(
+    /\^\^(.+?)\^\^/g,
+    `<span style="font-size: var(--size-3xl)">$1</span>`,
+  );
+  result = result.replace(
+    /\^(.+?)\^/g,
+    `<span style="font-size: var(--size-2xl)">$1</span>`,
+  );
 
   result = result.replace(/\*\*\*(.+?)\*\*\*/g, "<strong><em>$1</em></strong>");
   result = result.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
@@ -416,7 +451,7 @@ const processInlineFormatting = (text) => {
   result = result.replace(/~~(.+?)~~/g, "<s>$1</s>");
 
   return result;
-};;
+};
 
 // Глобальные функции для работы collapsible sections
 window.toggleInlineCollapsible = function (id) {
@@ -552,24 +587,41 @@ export const fadeElement = (
 // Инициализация подсказок при загрузке
 let tooltipInstance = null;
 let tooltipTimeout = null;
+let currentTooltipElement = null;
 
 document.addEventListener("DOMContentLoaded", function () {
   // Делегирование событий для подсказок
   document.addEventListener("mouseover", function (e) {
     const tooltip = e.target.closest(".hint-tooltip");
-    if (tooltip && !tooltipInstance) {
-      clearTimeout(tooltipTimeout);
-      tooltipTimeout = setTimeout(() => {
-        showTooltip(tooltip, e.clientX, e.clientY);
-      }, 200);
+    if (tooltip) {
+      // Если навели на другой элемент, скрываем предыдущий таймер
+      if (currentTooltipElement !== tooltip) {
+        clearTimeout(tooltipTimeout);
+        hideTooltip();
+        currentTooltipElement = tooltip;
+
+        tooltipTimeout = setTimeout(() => {
+          showTooltip(tooltip, e.clientX, e.clientY);
+        }, 200);
+      }
     }
   });
 
   document.addEventListener("mouseout", function (e) {
     const tooltip = e.target.closest(".hint-tooltip");
     if (tooltip) {
-      clearTimeout(tooltipTimeout);
-      hideTooltip();
+      // Проверяем, не перешли ли мы на другой тултип или на сам тултип
+      const relatedTarget = e.relatedTarget;
+      const isMovingToTooltip =
+        relatedTarget && relatedTarget.closest(".tooltip-popup");
+      const isMovingToAnotherHint =
+        relatedTarget && relatedTarget.closest(".hint-tooltip");
+
+      if (!isMovingToTooltip && !isMovingToAnotherHint) {
+        clearTimeout(tooltipTimeout);
+        hideTooltip();
+        currentTooltipElement = null;
+      }
     }
   });
 
@@ -671,3 +723,88 @@ function hideTooltip() {
     }, 200);
   }
 }
+
+// Добавляем защиту от потери контекста при быстром движении мыши
+document.addEventListener("mouseleave", function (e) {
+  if (e.target === document.documentElement) {
+    clearTimeout(tooltipTimeout);
+    hideTooltip();
+    currentTooltipElement = null;
+  }
+});
+
+// Глобальный обработчик для локальных ссылок
+document.addEventListener("click", function (e) {
+  const localLink = e.target.closest(".local-link");
+  if (localLink) {
+    e.preventDefault();
+
+    const href = localLink.getAttribute("data-local-href");
+    if (!href) return;
+
+    // Получаем приложение через глобальный объект
+    const app = window.app;
+    if (!app) {
+      // Если нет app, просто переходим по хэшу
+      window.location.hash = href;
+      return;
+    }
+
+    // Проверяем, открыт ли сейчас гайд
+    const state = window.appState ? window.appState.getState() : null;
+    const isGuideOpen = state && state.currentOpenGuide;
+
+    if (isGuideOpen) {
+      // Если гайд открыт, сначала закрываем его, потом навигируем
+      if (app.guideUI && typeof app.guideUI.closeGuideModal === "function") {
+        app.guideUI.closeGuideModal().then(() => {
+          setTimeout(() => {
+            // Используем navigationController для навигации
+            window.location.hash = href;
+            // Вызываем обработчик изменения hash вручную, чтобы гарантировать обработку
+            if (
+              app.navigation &&
+              typeof app.navigation.handleHashChange === "function"
+            ) {
+              setTimeout(() => app.navigation.handleHashChange(), 50);
+            }
+          }, 350); // Ждем завершения анимации закрытия
+        });
+      } else {
+        window.location.hash = href;
+        if (
+          app.navigation &&
+          typeof app.navigation.handleHashChange === "function"
+        ) {
+          setTimeout(() => app.navigation.handleHashChange(), 50);
+        }
+      }
+    } else {
+      // Если гайд не открыт, просто переходим
+      window.location.hash = href;
+      // Вызываем обработчик изменения hash
+      if (
+        app.navigation &&
+        typeof app.navigation.handleHashChange === "function"
+      ) {
+        setTimeout(() => app.navigation.handleHashChange(), 50);
+      }
+    }
+  }
+});
+
+// Также добавляем обработчик для отслеживания изменения hash
+window.addEventListener("hashchange", function (e) {
+  const app = window.app;
+  if (
+    app &&
+    app.navigation &&
+    typeof app.navigation.handleHashChange === "function"
+  ) {
+    // Предотвращаем двойной вызов, если уже вызвали вручную
+    if (!e._handled) {
+      e._handled = true;
+      app.navigation.handleHashChange();
+    }
+  }
+});

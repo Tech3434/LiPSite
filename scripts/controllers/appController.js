@@ -24,6 +24,7 @@ class AppController {
     this.contentUI = new ContentUI(this);
     this.guideUI = new GuideUI(this);
 
+    window.app = this;
     AppState.addEventListener("stateChange", () => {
       this.updateHeaderTitle();
     });
