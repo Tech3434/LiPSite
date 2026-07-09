@@ -4,29 +4,47 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Лапочки и Пупсики</title>
-    
+
     <!-- Добавляем base href для GitHub Pages -->
-    <base href="/LiPSite/">
-    
+    <base href="/LiPSite/" />
+
     <link rel="stylesheet" href="./styles/main.css" />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
-    <link rel="icon" href="./favicon.ico" type="image/x-icon">
+    <link rel="icon" href="./favicon.ico" type="image/x-icon" />
   </head>
   <body class="page-base">
     <header class="header-main">
       <div class="container-base flex justify-between items-center">
         <div id="header-title" class="text-gradient-primary">Loading...</div>
-        <div>
+        <div class="flex items-center gap-3">
+          <!-- Discord -->
           <a
             id="discord-link"
             href="#"
             target="_blank"
             class="icon-link-discord"
+            aria-label="Discord"
           >
             <i class="fab fa-discord"></i>
+          </a>
+
+          <!-- Бусти с SVG -->
+          <a
+            id="buymeacoffee-link"
+            href="https://boosty.to/priesttech/donate"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="icon-link-buymeacoffee"
+            aria-label="Поддержать на Бусти"
+          >
+            <img 
+              src="./images/boosty-logo.svg" 
+              alt="Boosty" 
+              class="icon-svg"
+            />
           </a>
         </div>
       </div>
@@ -139,7 +157,7 @@
               <span class="footer-creator" id="footer-creator">Командой</span>.
             </p>
           </div>
-          <div>
+          <div class="flex items-center gap-4">
             <a
               id="footer-discord-link"
               href="#"
@@ -148,6 +166,20 @@
             >
               <i class="fab fa-discord"></i>
               <span class="ml-2 text-lg align-middle">Discord</span>
+            </a>
+            <a
+              id="footer-buymeacoffee-link"
+              href="https://boosty.to/priesttech/donate"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="icon-link-buymeacoffee footer-buymeacoffee"
+            >
+              <img 
+                src="./images/boosty-logo.svg" 
+                alt="Boosty" 
+                class="icon-svg"
+              />
+              <span class="ml-2 text-lg align-middle">Поддержать</span>
             </a>
           </div>
         </div>
@@ -163,13 +195,19 @@
 
     <!-- GitHub Pages SPA fix -->
     <script>
-      (function() {
+      (function () {
         // Фикс для SPA на GitHub Pages
-        if (window.location.search.includes('?p=')) {
-          const path = window.location.search.split('?p=')[1].split('&')[0].replace(/~and~/g, '&');
+        if (window.location.search.includes("?p=")) {
+          const path = window.location.search
+            .split("?p=")[1]
+            .split("&")[0]
+            .replace(/~and~/g, "&");
           const hash = window.location.hash;
-          const basePath = window.location.pathname.split('/').slice(0, 3).join('/');
-          const newPath = basePath + '#' + path + hash;
+          const basePath = window.location.pathname
+            .split("/")
+            .slice(0, 3)
+            .join("/");
+          const newPath = basePath + "#" + path + hash;
           window.history.replaceState(null, null, newPath);
         }
       })();
