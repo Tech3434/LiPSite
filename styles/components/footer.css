@@ -30,6 +30,7 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  white-space: nowrap;
 }
 
 .footer-discord:hover {
@@ -50,9 +51,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
+  transition: color var(--transition-base);
 }
 
-/* SVG иконка Бусти в футере */
+/* SVG иконка Бусти в футере - АНАЛОГ DISCORD */
 .footer-buymeacoffee .icon-svg {
   width: 20px;
   height: 20px;
@@ -60,12 +63,13 @@
   min-height: 20px;
   display: block;
   flex-shrink: 0;
-  filter: brightness(0) saturate(100%) invert(60%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(90%) contrast(90%);
   transition: all var(--transition-base);
+  filter: brightness(0) saturate(100%) invert(60%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(90%) contrast(90%);
 }
 
 .footer-buymeacoffee:hover .icon-svg {
   filter: brightness(0) saturate(100%) invert(64%) sepia(63%) saturate(1789%) hue-rotate(338deg) brightness(102%) contrast(101%);
+  transform: scale(1.05);
 }
 
 /* Текст в ссылках футера */
@@ -74,6 +78,7 @@
   font-size: 16px;
   line-height: 1.5;
   white-space: nowrap;
+  transition: color var(--transition-base);
 }
 
 /* ===== АДАПТИВ ДЛЯ МОБИЛЬНЫХ ===== */
@@ -108,8 +113,7 @@
   }
 }
 
-/* ===== ТЕМНАЯ ТЕМА ===== */
-/* Если активна тема, меняем цвета */
+/* ===== ТЕМЫ ===== */
 .theme-active .footer-highlight,
 .theme-active .footer-creator {
   color: var(--theme-text, var(--text-primary));
@@ -138,7 +142,13 @@
   .footer-discord,
   .footer-buymeacoffee,
   .footer-discord i,
-  .footer-buymeacoffee .icon-svg {
+  .footer-buymeacoffee .icon-svg,
+  .footer-discord span,
+  .footer-buymeacoffee span {
     transition: none !important;
+  }
+  
+  .footer-buymeacoffee:hover .icon-svg {
+    transform: none;
   }
 }

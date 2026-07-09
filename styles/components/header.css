@@ -26,7 +26,7 @@
   background-clip: initial !important;
 }
 
-/* ===== ИКОНКИ СОЦСЕТЕЙ ===== */
+/* ===== ИКОНКИ В ХЕДЕРЕ ===== */
 .icon-link-discord,
 .icon-link-buymeacoffee {
   color: var(--text-primary);
@@ -47,45 +47,25 @@
 }
 
 .icon-link-buymeacoffee:hover {
+  color: #FF813F;
   transform: scale(1.1);
-  opacity: 0.8;
 }
 
-/* Стили для SVG иконок */
-.icon-svg {
+/* SVG иконка Бусти в хедере - АНАЛОГ DISCORD */
+.icon-link-buymeacoffee .icon-svg {
   width: 24px;
   height: 24px;
   display: block;
   transition: all var(--transition-base);
+  filter: brightness(0) invert(1); /* Белая иконка */
 }
 
 .icon-link-buymeacoffee:hover .icon-svg {
-  transform: scale(1.1);
+  filter: brightness(0) saturate(100%) invert(64%) sepia(63%) saturate(1789%) hue-rotate(338deg) brightness(102%) contrast(101%);
+  /* Оранжевый цвет #FF813F */
 }
 
-/* Специальные стили для футера */
-.footer-discord {
-  gap: 4px;
-}
-
-.footer-discord:hover {
-  color: #5865F2 !important;
-}
-
-.footer-buymeacoffee {
-  gap: 4px;
-}
-
-.footer-buymeacoffee:hover {
-  color: #FF813F !important;
-}
-
-.footer-buymeacoffee .icon-svg {
-  width: 20px;
-  height: 20px;
-}
-
-/* ===== АДАПТИВ ===== */
+/* ===== АДАПТИВ ДЛЯ МОБИЛЬНЫХ ===== */
 @media (max-width: 640px) {
   .icon-link-discord,
   .icon-link-buymeacoffee {
@@ -94,19 +74,35 @@
     font-size: var(--size-lg);
   }
   
-  .icon-svg {
+  .icon-link-buymeacoffee .icon-svg {
     width: 18px;
     height: 18px;
   }
 }
 
-/* ===== ТЕМНАЯ/СВЕТЛАЯ ТЕМА ===== */
-/* Если иконка должна менять цвет в зависимости от темы */
-.theme-active .icon-svg {
+/* ===== ТЕМЫ ===== */
+.theme-active .icon-link-discord:hover {
+  color: var(--theme-primary, #5865F2);
+}
+
+.theme-active .icon-link-buymeacoffee:hover {
+  color: var(--theme-primary, #FF813F);
+}
+
+.theme-active .icon-link-buymeacoffee .icon-svg {
   filter: brightness(0) saturate(100%) invert(34%) sepia(48%) saturate(3627%) hue-rotate(342deg) brightness(96%) contrast(92%);
-  /* Цвет темы */
 }
 
 .theme-active .icon-link-buymeacoffee:hover .icon-svg {
   filter: brightness(0) saturate(100%) invert(64%) sepia(63%) saturate(1789%) hue-rotate(338deg) brightness(102%) contrast(101%);
+}
+
+/* ===== PREFERS-REDUCED-MOTION ===== */
+@media (prefers-reduced-motion: reduce) {
+  .icon-link-discord,
+  .icon-link-buymeacoffee,
+  .icon-link-discord i,
+  .icon-link-buymeacoffee .icon-svg {
+    transition: none !important;
+  }
 }
