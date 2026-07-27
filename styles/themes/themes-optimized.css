@@ -1,0 +1,291 @@
+/* ===== ТЕМЫ И ТЕМАТИЧЕСКИЕ СТИЛИ (ОПТИМИЗИРОВАННЫЕ) ===== */
+/* Оптимизация: вместо добавления класса theme-active к каждому элементу,
+   класс добавляется только к <body>. Стилями используем вложенные селекторы.
+   Это убирает сотни DOM-манипуляций при смене темы. */
+
+/* Фон всей страницы из primary цвета */
+body.theme-active {
+  background-color: var(--theme-primary) !important;
+  transition: background-color 0.5s ease;
+}
+
+/* Все тематические стили наследуются от body.theme-active */
+body.theme-active .header-main {
+  background: color-mix(in srgb, var(--theme-primary) 95%, black);
+}
+
+body.theme-active .text-gradient-primary {
+  color: var(--theme-text) !important;
+  background: none !important;
+}
+
+body.theme-active .content-card {
+  background: linear-gradient(145deg, 
+    color-mix(in srgb, var(--theme-secondary) 80%, transparent),
+    color-mix(in srgb, var(--theme-secondary) 90%, transparent)
+  );
+  border-color: color-mix(in srgb, var(--theme-text) 20%, transparent);
+}
+
+body.theme-active .content-card-title {
+  color: var(--theme-text);
+}
+
+body.theme-active .card-animated {
+  background: linear-gradient(145deg, 
+    color-mix(in srgb, var(--theme-secondary) 80%, transparent),
+    color-mix(in srgb, var(--theme-secondary) 90%, transparent)
+  );
+  border-color: color-mix(in srgb, var(--theme-text) 20%, transparent);
+}
+
+/* Баннер оверлей */
+body.theme-active .banner-overlay {
+  background: linear-gradient(to top, 
+    color-mix(in srgb, var(--theme-primary) 95%, black) 0%, 
+    color-mix(in srgb, var(--theme-primary) 70%, black) 50%,
+    transparent 100%
+  );
+}
+
+body.theme-active .table-header-row {
+  background: color-mix(in srgb, var(--theme-accent) 20%, transparent);
+}
+
+body.theme-active .table-header-cell {
+  color: var(--theme-text);
+  border-bottom-color: color-mix(in srgb, var(--theme-text) 20%, transparent);
+}
+
+body.theme-active .table-body-row:hover {
+  background: color-mix(in srgb, var(--theme-accent) 10%, transparent);
+}
+
+body.theme-active .table-body-cell {
+  border-bottom: 1px solid color-mix(in srgb, var(--theme-text) 10%, transparent);
+}
+
+body.theme-active .table-container::-webkit-scrollbar-track {
+  background: color-mix(in srgb, var(--theme-text) 10%, transparent);
+}
+
+body.theme-active .table-container::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--theme-accent) 80%, transparent);
+}
+
+body.theme-active .modal-content-base {
+  background: linear-gradient(145deg, 
+    color-mix(in srgb, var(--theme-secondary) 80%, transparent),
+    color-mix(in srgb, var(--theme-secondary) 90%, transparent)
+  );
+  border-color: color-mix(in srgb, var(--theme-text) 20%, transparent);
+}
+
+body.theme-active .modal-title {
+  color: var(--theme-text);
+}
+
+body.theme-active .modal-close-btn:hover {
+  background: color-mix(in srgb, var(--theme-accent) 20%, transparent);
+  color: var(--theme-accent);
+}
+
+body.theme-active .section-title {
+  color: var(--theme-text);
+}
+
+body.theme-active .scrollbar-custom {
+  scrollbar-color: color-mix(in srgb, var(--theme-accent) 80%, transparent) 
+                   color-mix(in srgb, var(--theme-text) 10%, transparent);
+}
+
+body.theme-active .scrollbar-custom::-webkit-scrollbar-track {
+  background: color-mix(in srgb, var(--theme-text) 10%, transparent);
+}
+
+body.theme-active .scrollbar-custom::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--theme-accent) 80%, transparent);
+}
+
+body.theme-active .scrollbar-custom::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--theme-accent) 100%, transparent);
+}
+
+body.theme-active .status-alive,
+body.theme-active .status-dead,
+body.theme-active .status-lost,
+body.theme-active .status-left { 
+  color: var(--theme-text); 
+}
+
+body.theme-active .icon-link-discord {
+  color: var(--theme-text);
+}
+
+body.theme-active .icon-link-discord:hover {
+  color: var(--theme-text);
+}
+
+body.theme-active .footer-main {
+  background: color-mix(in srgb, var(--theme-primary) 95%, black);
+  border-top-color: color-mix(in srgb, var(--theme-text) 20%, transparent);
+}
+
+body.theme-active .footer-highlight,
+body.theme-active .footer-creator {
+  color: var(--theme-text);
+}
+
+body.theme-active .loader {
+  border-color: color-mix(in srgb, var(--theme-accent) 20%, transparent);
+  border-top-color: var(--theme-accent);
+}
+
+/* НОВЫЕ СТИЛИ ДЛЯ КНОПОК С ТЕМОЙ */
+body.theme-active .btn-theme-primary {
+  background: var(--btn-theme-bg) !important;
+  color: var(--btn-theme-text) !important;
+  border-color: color-mix(in srgb, var(--theme-text) 20%, transparent) !important;
+}
+
+body.theme-active .btn-theme-primary:hover {
+  background: var(--btn-theme-hover) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--theme-primary) 30%, transparent);
+}
+
+body.theme-active .btn-theme-primary:active {
+  background: var(--btn-theme-active) !important;
+  transform: translateY(0);
+}
+
+/* Кнопки сезонов в теме */
+body.theme-active .btn-state-active {
+  background: var(--btn-theme-bg) !important;
+  color: var(--btn-theme-text) !important;
+  border-color: color-mix(in srgb, var(--theme-text) 30%, transparent) !important;
+}
+
+body.theme-active .btn-state-inactive {
+  background: color-mix(in srgb, var(--theme-secondary) 20%, transparent) !important;
+  color: var(--theme-text) !important;
+  border-color: color-mix(in srgb, var(--theme-text) 10%, transparent) !important;
+}
+
+body.theme-active .btn-state-inactive:hover {
+  background: color-mix(in srgb, var(--theme-secondary) 30%, transparent) !important;
+}
+
+/* Стили для таблички гайдов в теме */
+body.theme-active .guide-table-row {
+  background: linear-gradient(90deg, 
+    color-mix(in srgb, var(--theme-secondary) 20%, transparent),
+    color-mix(in srgb, var(--theme-secondary) 10%, transparent)
+  ) !important;
+  border-bottom-color: color-mix(in srgb, var(--theme-text) 5%, transparent) !important;
+}
+
+body.theme-active .guide-table-row:hover {
+  background: linear-gradient(90deg, 
+    color-mix(in srgb, var(--theme-secondary) 30%, transparent),
+    color-mix(in srgb, var(--theme-secondary) 20%, transparent)
+  ) !important;
+}
+
+body.theme-active .guide-description {
+  border-left-color: color-mix(in srgb, var(--theme-accent) 30%, transparent) !important;
+}
+
+/* СТИЛИ ДЛЯ НОВЫХ ЭЛЕМЕНТОВ В ТЕМЕ */
+
+/* Изображения в теме */
+body.theme-active .image-inline img {
+  box-shadow: 0 10px 25px -5px color-mix(in srgb, var(--theme-primary) 20%, transparent);
+  border: 1px solid color-mix(in srgb, var(--theme-text) 10%, transparent);
+}
+
+body.theme-active .image-subtext {
+  color: color-mix(in srgb, var(--theme-text) 70%, transparent);
+}
+
+/* Collapsible sections в теме */
+body.theme-active .collapsible-toggle-inline {
+  color: var(--theme-text) !important;
+}
+
+body.theme-active .collapsible-toggle-inline:hover {
+  background: color-mix(in srgb, var(--theme-primary) 10%, transparent) !important;
+}
+
+body.theme-active .collapsible-toggle-inline.collapsible-active {
+  background: color-mix(in srgb, var(--theme-primary) 15%, transparent) !important;
+}
+
+body.theme-active .collapsible-toggle-inline .collapsible-arrow-inline {
+  color: var(--theme-text);
+}
+
+body.theme-active .collapsible-content-inline > div {
+  background: color-mix(in srgb, var(--theme-primary) 5%, transparent) !important;
+  border-left-color: color-mix(in srgb, var(--theme-accent) 50%, transparent) !important;
+  color: var(--theme-text) !important;
+}
+
+/* Подсказки в теме */
+body.theme-active .hint-tooltip {
+  border-bottom-color: color-mix(in srgb, var(--theme-accent) 50%, transparent);
+}
+
+body.theme-active .hint-tooltip:hover {
+  border-bottom-color: var(--theme-accent);
+}
+
+body.theme-active .tooltip-popup {
+  background: color-mix(in srgb, var(--theme-secondary) 90%, transparent) !important;
+  border-color: color-mix(in srgb, var(--theme-text) 20%, transparent) !important;
+  color: var(--theme-text) !important;
+}
+
+body.theme-active .tooltip-popup::before {
+  border-top-color: color-mix(in srgb, var(--theme-text) 20%, transparent) !important;
+}
+
+/* Разделители в теме */
+body.theme-active .full-divider {
+  background: linear-gradient(to right, 
+    transparent, 
+    color-mix(in srgb, var(--theme-text) 50%, transparent), 
+    transparent
+  );
+}
+
+body.theme-active .partial-divider {
+  background: color-mix(in srgb, var(--theme-text) 30%, transparent);
+}
+
+/* Спойлеры - перенесены сюда для поддержки темы */
+.spoiler {
+  background-color: rgba(45, 45, 45, 0.85);
+  color: rgba(45, 45, 45, 0.85);
+  border-radius: 4px;
+  padding: 2px 4px;
+  cursor: help;
+  transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+.spoiler.revealed {
+  color: #f8fafc !important;
+  background-color: rgba(85, 85, 85, 0.85) !important;
+}
+
+/* Стили спойлеров для темы */
+body.theme-active .spoiler {
+  background-color: color-mix(in srgb, var(--theme-primary) 10%, transparent);
+  color: color-mix(in srgb, var(--theme-primary) 10%, transparent);
+}
+
+body.theme-active .spoiler.revealed {
+  color: var(--theme-text) !important;
+  background-color: color-mix(in srgb, var(--theme-primary) 20%, transparent) !important;
+  border: 1px solid color-mix(in srgb, var(--theme-accent) 30%, transparent);
+}

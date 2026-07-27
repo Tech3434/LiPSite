@@ -36,23 +36,13 @@ class SeasonUI {
 
     buttons.forEach((btn) => {
       if (btn.dataset.seasonId === selectedSeasonId) {
-        if (state.isThemeActive && selectedSeasonId !== "official") {
-          // В активной теме используем классы темы (только для сезонов, не для "Информации")
-          btn.className = "btn btn-state-active theme-active";
-        } else {
-          // Без темы или для "Информации" - цветовые режимы
-          btn.className =
-            selectedSeasonId === "official"
-              ? "btn btn-mode-warning"
-              : "btn btn-mode-success";
-        }
+        // Всегда используем базовые классы — тема применяется через body.theme-active
+        btn.className =
+          selectedSeasonId === "official"
+            ? "btn btn-mode-warning"
+            : "btn btn-mode-success";
       } else {
-        if (state.isThemeActive && selectedSeasonId !== "official") {
-          // В активной теме все неактивные кнопки используют тему
-          btn.className = "btn btn-state-inactive theme-active";
-        } else {
-          btn.className = "btn btn-state-inactive";
-        }
+        btn.className = "btn btn-state-inactive";
       }
     });
 
@@ -76,30 +66,14 @@ class SeasonUI {
       const isSelected = btn.dataset.seasonId === state.currentSeason;
 
       if (isSelected) {
-        if (
-          state.isThemeActive &&
-          state.currentSeason !== "official" &&
-          state.currentSeason !== null
-        ) {
-          btn.className = "btn btn-state-active theme-active";
-        } else {
-          btn.className =
-            state.currentSeason === "official"
-              ? "btn btn-mode-warning"
-              : state.currentSeason
-                ? "btn btn-mode-success"
-                : "btn btn-mode-warning";
-        }
+        btn.className =
+          state.currentSeason === "official"
+            ? "btn btn-mode-warning"
+            : state.currentSeason
+              ? "btn btn-mode-success"
+              : "btn btn-mode-warning";
       } else {
-        if (
-          state.isThemeActive &&
-          state.currentSeason !== "official" &&
-          state.currentSeason !== null
-        ) {
-          btn.className = "btn btn-state-inactive theme-active";
-        } else {
-          btn.className = "btn btn-state-inactive";
-        }
+        btn.className = "btn btn-state-inactive";
       }
     });
   }

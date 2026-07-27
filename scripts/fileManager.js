@@ -11,6 +11,7 @@ const BASE_PATH = window.location.pathname.includes("/LiPSite")
 const CACHE_DURATION = 5 * 60 * 1000;
 const cache = new Map();
 const pendingRequests = new Map();
+const themeCache = new Map(); // Кэш тем актов для быстрой смены
 
 // Упрощенная функция fetch - ВСЕГДА использует относительные пути
 const fetchWithCache = async (url, options = {}) => {
@@ -195,6 +196,22 @@ const FileManager = {
       const sanitizedSeason = sanitizePath(seasonId);
       const sanitizedAct = sanitizePath(actId);
 
+      // Проверяем кэш тем (включая sessionStorage)
+      const cacheKey = `${sanitizedSeason}:${sanitizedAct}`;
+      
+      // Сначала проверяем sessionStorage (между перезагрузками страницы)
+      try {
+        const cachedSession = sessionStorage.getItem(`actTheme_${cacheKey}`);
+        if (cachedSession) {
+          return JSON.parse(cachedSession);
+        }
+      } catch {}
+
+      // Потом проверяем кэш в памяти
+      if (themeCache.has(cacheKey)) {
+        return themeCache.get(cacheKey);
+      }
+
       const content = await fetchWithCache(
         `data/seasons/${sanitizedSeason}/acts/${sanitizedAct}/design.txt`,
       ).catch(() => null);
@@ -253,6 +270,12 @@ const FileManager = {
           if (colorRegex.test(color)) theme.textColor = color;
         }
       });
+
+      // Сохраняем в оба кэша
+      themeCache.set(cacheKey, theme);
+      try {
+        sessionStorage.setItem(`actTheme_${cacheKey}`, JSON.stringify(theme));
+      } catch {}
 
       return theme;
     } catch (error) {
@@ -583,6 +606,7 @@ const FileManager = {
   clearCache() {
     cache.clear();
     pendingRequests.clear();
+    themeCache.clear();
   },
 
   getCacheStats() {

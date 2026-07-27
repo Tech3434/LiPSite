@@ -119,7 +119,7 @@ class ContentUI {
               -40,
             ) || "#4338ca",
           );
-          btn.className = "btn btn-state-active theme-active active-mode";
+          btn.className = "btn btn-state-active active-mode";
         } else {
           btn.className = "btn btn-state-active active-mode";
           // Сбрасываем кастомные стили
@@ -144,7 +144,7 @@ class ContentUI {
               state.currentTheme.secondaryColor ||
               "#475569") + "30",
           );
-          btn.className = "btn btn-state-inactive theme-active";
+          btn.className = "btn btn-state-inactive";
         } else {
           btn.className = "btn btn-state-inactive";
           // Сбрасываем кастомные стили
@@ -201,8 +201,8 @@ class ContentUI {
 
     if (!playersData.players || playersData.players.length === 0) {
       this.app.elements.playersTableBody.innerHTML = `
-      <tr class="table-body-row ${state.isThemeActive ? "theme-active" : ""}">
-        <td colspan="4" class="table-body-cell ${state.isThemeActive ? "theme-active" : ""} py-8 text-center" 
+      <tr class="table-body-row">
+        <td colspan="4" class="table-body-cell py-8 text-center" 
             style="color: ${state.isThemeActive ? "var(--theme-text)" : "#94a3b8"}">
           Данные игроков отсутствуют для этого акта.
         </td>
@@ -213,7 +213,7 @@ class ContentUI {
 
     playersData.players.forEach((player, index) => {
       const row = createElement("tr", {
-        classes: `table-body-row ${state.isThemeActive ? "theme-active" : ""}`,
+        classes: "table-body-row",
         attributes: {
           style: `opacity: 0; transform: translateY(10px); transition: opacity 0.3s ease ${index * 0.05}s, transform 0.3s ease ${index * 0.05}s;`,
         },
@@ -223,12 +223,11 @@ class ContentUI {
       if (player.status === "Мёртв") statusClass = "status-dead";
       if (player.status === "Потерян") statusClass = "status-lost";
       if (player.status === "Ушёл") statusClass = "status-left";
-      if (state.isThemeActive) statusClass += " theme-active";
 
       row.innerHTML = `
-      <td class="table-body-cell ${state.isThemeActive ? "theme-active" : ""} font-medium">${sanitizeHTML(player.nick)}</td>
-      <td class="table-body-cell ${state.isThemeActive ? "theme-active" : ""}">${sanitizeHTML(player.name)}</td>
-      <td class="table-body-cell ${state.isThemeActive ? "theme-active" : ""}">${sanitizeHTML(player.type)}</td>
+      <td class="table-body-cell font-medium">${sanitizeHTML(player.nick)}</td>
+      <td class="table-body-cell">${sanitizeHTML(player.name)}</td>
+      <td class="table-body-cell">${sanitizeHTML(player.type)}</td>
       <td class="table-body-cell ${statusClass} font-medium">${sanitizeHTML(player.status)}</td>
     `;
 
@@ -248,7 +247,7 @@ class ContentUI {
     const guidesGrid = this.app.elements.guidesGrid;
     guidesGrid.innerHTML = `
     <div class="col-span-full text-center py-12">
-      <div class="loader mx-auto mb-4 ${state.isThemeActive ? "theme-active" : ""}"></div>
+      <div class="loader mx-auto mb-4"></div>
       <p style="color: ${state.isThemeActive ? "var(--theme-text)" : "#cbd5e1"}">
         Загрузка гайдов...
       </p>
@@ -280,7 +279,7 @@ class ContentUI {
 
       guides.forEach((guide, index) => {
         const card = createElement("div", {
-          classes: `card-animated ${state.isThemeActive ? "theme-active" : ""}`,
+          classes: "card-animated",
           dataset: { guideId: guide.id },
           attributes: {
             style: `opacity: 0; transform: translateY(20px); 

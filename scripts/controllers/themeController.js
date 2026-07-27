@@ -61,18 +61,6 @@ class ThemeController {
     root.style.setProperty("--btn-theme-active", activeColor);
 
     this.app.elements.body.classList.add("theme-active");
-
-    // Применяем тему к элементам
-    const themeElements = document.querySelectorAll(
-      ".header-main, .footer-main, #guide-modal, .content-card, .card-animated, " +
-        ".section-title, .content-card-title, .modal-title, .table-header-row, " +
-        ".table-body-row, .table-header-cell, .table-body-cell, .status-alive, " +
-        ".status-dead, .status-lost, .status-left, .icon-link-discord, " +
-        ".footer-highlight, .footer-creator, .scrollbar-custom, .loader, " +
-        ".banner-overlay, .text-gradient-primary, .btn-state-active, .btn-state-inactive",
-    );
-
-    themeElements.forEach((el) => el.classList.add("theme-active"));
     AppState.setState({ isThemeActive: true });
 
     // ВАЖНО: После применения темы обновляем все кнопки
@@ -128,9 +116,6 @@ class ThemeController {
       this.app.elements.body.style.backgroundColor = "";
       this.app.elements.body.classList.remove("theme-active");
 
-      const themeElements = document.querySelectorAll(".theme-active");
-      themeElements.forEach((el) => el.classList.remove("theme-active"));
-
       AppState.setState({
         isThemeActive: false,
         currentTheme: null,
@@ -170,9 +155,10 @@ class ThemeController {
       let seasonTitle = "";
       let seasonSynopsis = "";
 
-      // Загружаем информацию о сезоне для описания
+      // Загружаем информацию о сезоне для описания и баннера
+      let seasonInfo = null;
       try {
-        const seasonInfo = await this.fileManager.getSeasonInfo(
+        seasonInfo = await this.fileManager.getSeasonInfo(
           state.currentSeason,
         );
         if (seasonInfo && seasonInfo.synopsis) {
@@ -181,6 +167,7 @@ class ThemeController {
         if (seasonInfo && seasonInfo.title) {
           seasonTitle = seasonInfo.title.trim();
         }
+        ///bannerImage используем ниже, если imageUrl не найден
       } catch (seasonError) {
         console.log("Could not load season info");
       }
@@ -239,13 +226,9 @@ class ThemeController {
         seasonSynopsisElement.textContent = seasonSynopsis;
       }
 
-      if (!imageUrl) {
-        const seasonInfo = await this.fileManager.getSeasonInfo(
-          state.currentSeason,
-        );
-        if (seasonInfo && seasonInfo.bannerImage) {
-          imageUrl = seasonInfo.bannerImage.trim();
-        }
+      // Если imageUrl не найден, пробуем из seasonInfo (уже загружен выше)
+      if (!imageUrl && seasonInfo && seasonInfo.bannerImage) {
+        imageUrl = seasonInfo.bannerImage.trim();
       }
 
       if (imageUrl) {

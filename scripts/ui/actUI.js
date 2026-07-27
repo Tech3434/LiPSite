@@ -17,7 +17,7 @@ class ActUI {
     if (acts && acts.length > 0) {
       acts.forEach((actId) => {
         const button = createElement("button", {
-          classes: `btn btn-state-inactive ${state.isThemeActive ? "theme-active" : ""}`,
+          classes: "btn btn-state-inactive",
           text: `Акт ${actId.replace("act", "")}`,
           dataset: { actId },
         });
@@ -51,19 +51,10 @@ class ActUI {
       this.app.elements.actSelector.querySelectorAll(".btn[data-act-id]");
 
     buttons.forEach((btn) => {
-      const state = AppState.getState();
       if (btn.dataset.actId === selectedActId) {
-        if (state.isThemeActive) {
-          btn.className = "btn btn-state-active theme-active";
-        } else {
-          btn.className = "btn btn-state-active";
-        }
+        btn.className = "btn btn-state-active";
       } else {
-        if (state.isThemeActive) {
-          btn.className = "btn btn-state-inactive theme-active";
-        } else {
-          btn.className = "btn btn-state-inactive";
-        }
+        btn.className = "btn btn-state-inactive";
       }
     });
 
@@ -88,17 +79,9 @@ class ActUI {
       const isSelected = btn.dataset.actId === state.currentAct;
 
       if (isSelected) {
-        if (state.isThemeActive) {
-          btn.className = "btn btn-state-active theme-active";
-        } else {
-          btn.className = "btn btn-state-active";
-        }
+        btn.className = "btn btn-state-active";
       } else {
-        if (state.isThemeActive) {
-          btn.className = "btn btn-state-inactive theme-active";
-        } else {
-          btn.className = "btn btn-state-inactive";
-        }
+        btn.className = "btn btn-state-inactive";
       }
     });
   }
