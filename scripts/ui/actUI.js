@@ -133,10 +133,13 @@ class ActUI {
       currentContent.classList.add("hidden");
     }
 
-    await this.app.theme.loadActTheme(state.currentSeason, actId);
-    await this.app.theme.updateBannerFromAct();
-
-    await this.app.content.updateContentForCurrentMode();
+    // BUGFIX: Загружаем тему/баннер и контент ПАРАЛЛЕЛЬНО для ускорения перехода
+    await Promise.all([
+      this.app.theme.loadActTheme(state.currentSeason, actId).then(() =>
+        this.app.theme.updateBannerFromAct()
+      ),
+      this.app.content.updateContentForCurrentMode(),
+    ]);
 
     const newContent = document.getElementById(`${currentMode}-content`);
     if (newContent) {

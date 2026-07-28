@@ -25,11 +25,14 @@ class ContentController {
       AppState.setState({ currentAct: acts[0] });
       this.app.actUI.updateActButtons(acts[0]);
       await this.app.updateHeaderTitle();
-      await this.app.theme.loadActTheme(seasonId, acts[0]);
-      await this.app.theme.updateBannerFromAct();
 
-      // ВАЖНО: Загружаем контент сразу при выборе сезона
-      await this.app.content.updateContentForCurrentMode();
+      // BUGFIX: Загружаем тему/баннер и контент ПАРАЛЛЕЛЬНО
+      await Promise.all([
+        this.app.theme.loadActTheme(seasonId, acts[0]).then(() =>
+          this.app.theme.updateBannerFromAct()
+        ),
+        this.app.content.updateContentForCurrentMode(),
+      ]);
     } else {
       await this.app.updateHeaderTitle();
     }

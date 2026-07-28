@@ -553,11 +553,32 @@ window.toggleInlineCollapsible = function (id) {
 
     // Принудительно пересчитываем scrollHeight
     const scrollHeight = content.scrollHeight;
+
+    // BUGFIX: Сохраняем СТАРЫЙ maxHeight ДО того, как перезапишем его новым значением.
+    // Вычисляем дельту расширения дочернего блока и добавляем её к maxHeight каждого предка,
+    // чтобы вложенный блок не обрезался родительским контейнером.
+    const childOldMax = parseInt(content.style.maxHeight);
+    const childDelta = scrollHeight - (isNaN(childOldMax) ? 0 : childOldMax);
+
     content.style.maxHeight = scrollHeight + "px";
     content.style.marginTop = "0.25rem";
     content.style.marginBottom = "0.25rem";
     if (arrow) arrow.style.transform = "rotate(180deg)";
     if (button) button.classList.add("collapsible-active");
+
+    if (childDelta > 0) {
+      let ancestor = content.parentElement.closest(".collapsible-content-inline");
+      while (ancestor) {
+        const ancestorMax = ancestor.style.maxHeight;
+        if (ancestorMax && ancestorMax !== "0px" && ancestorMax !== "0" && ancestorMax !== "none") {
+          const ancestorNum = parseInt(ancestorMax);
+          if (!isNaN(ancestorNum)) {
+            ancestor.style.maxHeight = (ancestorNum + childDelta) + "px";
+          }
+        }
+        ancestor = ancestor.parentElement.closest(".collapsible-content-inline");
+      }
+    }
 
     // После анимации закрываем overflow у родителя
     setTimeout(() => {

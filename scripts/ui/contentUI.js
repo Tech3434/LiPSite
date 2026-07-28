@@ -6,6 +6,14 @@ import {
 } from "../domUtils.js";
 import { sanitizeHTML } from "../utils.js";
 
+// Кэш для разобранного HTML-контента — чтобы при возврате
+// на ранее просмотренный акт не перепаршивать markdown заново
+const parsedHTMLCache = new Map();
+
+function getCacheKey(seasonId, actId, mode) {
+  return `${seasonId}:${actId}:${mode}`;
+}
+
 class ContentUI {
   constructor(app) {
     this.app = app;
@@ -159,30 +167,50 @@ class ContentUI {
 
   async updateStoryContent() {
     const state = AppState.getState();
-    const story = await this.fileManager.getActStory(
-      state.currentSeason,
-      state.currentAct,
-    );
 
-    if (story) {
-      const textColor = state.isThemeActive
-        ? state.currentTheme?.text || state.currentTheme?.textColor
-        : null;
-      this.app.elements.actTitle.textContent = story.title;
-      const parsedHTML = parseMarkdownToHTML(story.content, textColor);
-      this.app.elements.actStory.innerHTML = parsedHTML;
-    } else {
-      this.app.elements.actStory.innerHTML =
-        '<p class="text-slate-400">История отсутствует.</p>';
+    // OPTIMIZE: Используем кэш разобранного HTML, чтобы не парсить заново
+    const cacheKey = getCacheKey(state.currentSeason, state.currentAct, "story");
+    if (!parsedHTMLCache.has(cacheKey)) {
+      const story = await this.fileManager.getActStory(
+        state.currentSeason,
+        state.currentAct,
+      );
+
+      if (story) {
+        const textColor = state.isThemeActive
+          ? state.currentTheme?.text || state.currentTheme?.textColor
+          : null;
+        parsedHTMLCache.set(cacheKey, {
+          title: story.title,
+          html: parseMarkdownToHTML(story.content, textColor),
+        });
+      } else {
+        parsedHTMLCache.set(cacheKey, {
+          title: "",
+          html: '<p class="text-slate-400">История отсутствует.</p>',
+        });
+      }
     }
+
+    const cached = parsedHTMLCache.get(cacheKey);
+    this.app.elements.actTitle.textContent = cached.title;
+    this.app.elements.actStory.innerHTML = cached.html;
   }
 
   async updatePlayersContent() {
     const state = AppState.getState();
-    const playersData = await this.fileManager.getActPlayers(
-      state.currentSeason,
-      state.currentAct,
-    );
+
+    // OPTIMIZE: Используем кэш разобранных данных игроков
+    const cacheKey = getCacheKey(state.currentSeason, state.currentAct, "players");
+    if (!parsedHTMLCache.has(cacheKey)) {
+      const playersData = await this.fileManager.getActPlayers(
+        state.currentSeason,
+        state.currentAct,
+      );
+      parsedHTMLCache.set(cacheKey, playersData);
+    }
+
+    const playersData = parsedHTMLCache.get(cacheKey);
 
     this.app.elements.playersTableBody.innerHTML = "";
     const tableHeaders = this.app.elements.playersTableBody
@@ -245,6 +273,15 @@ class ContentUI {
   async updateGuidesContent() {
     const state = AppState.getState();
     const guidesGrid = this.app.elements.guidesGrid;
+
+    // OPTIMIZE: Используем кэш разобранных гайдов
+    const cacheKey = getCacheKey(state.currentSeason, state.currentAct, "guides");
+    if (parsedHTMLCache.has(cacheKey)) {
+      const cached = parsedHTMLCache.get(cacheKey);
+      guidesGrid.innerHTML = cached;
+      return;
+    }
+
     guidesGrid.innerHTML = `
     <div class="col-span-full text-center py-12">
       <div class="loader mx-auto mb-4"></div>
@@ -270,6 +307,8 @@ class ContentUI {
           </p>
         </div>
       `;
+        // Кэшируем даже пустое состояние
+        parsedHTMLCache.set(cacheKey, guidesGrid.innerHTML);
         return;
       }
 
@@ -387,6 +426,9 @@ class ContentUI {
           }
         });
       });
+
+      // OPTIMIZE: Сохраняем в кэш ПОСЛЕ построения всех карточек
+      parsedHTMLCache.set(cacheKey, guidesGrid.innerHTML);
     } catch (error) {
       console.error("Error updating guides content:", error);
       guidesGrid.innerHTML = `

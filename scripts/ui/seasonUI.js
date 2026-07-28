@@ -163,30 +163,57 @@ class SeasonUI {
       this.app.elements.officialInfo.classList.add("hidden");
     }
 
-    this.app.elements.seasonContent.classList.remove("hidden");
-    this.app.elements.seasonContent.style.opacity = "0";
-
     AppState.setState({
       currentSeason: seasonId,
       currentAct: null, // Сбрасываем выбранный акт при смене сезона
       isTransitioning: false,
     });
 
-    // Параллельно: анимация + загрузка данных
+    // OPTIMIZE: Сначала скрываем ВСЕ секции режимов, чтобы не было
+    // остаточного контента от предыдущего режима при возврате из "Информация"
+    ["story", "players", "guides"].forEach((mode) => {
+      const section = document.getElementById(`${mode}-content`);
+      if (section) section.classList.add("hidden");
+    });
+
+    // OPTIMIZE: Загружаем ВСЕ данные ДО того, как показать seasonContent.
+    // Это устраняет проблему "сначала макет, потом контент".
+    await this.app.content.loadSeasonData(seasonId);
+
+    // Теперь, когда всё готово — показываем сезон с контентом
+    this.app.elements.seasonContent.classList.remove("hidden");
+    this.app.elements.seasonContent.style.opacity = "0";
+
+    // BUGFIX: После загрузки данных — показываем секцию текущего режима,
+    // скрываем остальные (важно при возврате из "Информация")
+    const currentMode = AppState.getState("currentMode");
+    ["story", "players", "guides"].forEach((mode) => {
+      const section = document.getElementById(`${mode}-content`);
+      if (section) {
+        if (mode === currentMode) {
+          section.classList.remove("hidden");
+          section.style.opacity = "1";
+        } else {
+          section.classList.add("hidden");
+        }
+      }
+    });
+
+    // Параллельно: анимация появления + обновление кнопок
     await Promise.all([
       fadeElement(this.app.elements.seasonContent, "in", 300),
-      this.app.content.loadSeasonData(seasonId),
+      (async () => {
+        // ВАЖНО: После загрузки данных сезона обновляем кнопки режимов
+        if (
+          this.app.contentUI &&
+          typeof this.app.contentUI.updateModeButtons === "function"
+        ) {
+          this.app.contentUI.updateModeButtons();
+        }
+
+        this.app.navigation.updateURL();
+      })(),
     ]);
-
-    // ВАЖНО: После загрузки данных сезона обновляем кнопки режимов
-    if (
-      this.app.contentUI &&
-      typeof this.app.contentUI.updateModeButtons === "function"
-    ) {
-      this.app.contentUI.updateModeButtons();
-    }
-
-    this.app.navigation.updateURL();
   }
 
   showLoading() {
