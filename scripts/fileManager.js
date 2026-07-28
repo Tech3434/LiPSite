@@ -3,17 +3,12 @@ import { sanitizePath, validateUrl, sanitizeHTML, normalizeImagePath } from "./u
 import { parseMarkdownToHTML, initCollapsibles } from "./domUtils.js";
 
 
-// Мне похуй
-const BASE_PATH = window.location.pathname.includes("/LiPSite")
-  ? "/LiPSite/"
-  : "./";
-
 const CACHE_DURATION = 5 * 60 * 1000;
 const cache = new Map();
 const pendingRequests = new Map();
-const themeCache = new Map(); // Кэш тем актов для быстрой смены
+const themeCache = new Map(); // Кэш тем актов
 
-// Упрощенная функция fetch - ВСЕГДА использует относительные пути
+// Упрощенная функция fetch
 const fetchWithCache = async (url, options = {}) => {
   // Нормализуем URL: убираем начальный / если есть
   let normalizedUrl = url.startsWith("/") ? url.substring(1) : url;
@@ -73,50 +68,6 @@ const fetchWithCache = async (url, options = {}) => {
 
   pendingRequests.set(cacheKey, request);
   return request;
-};
-
-// Функция подсчета папок
-const countFolders = async (basePath) => {
-    try {
-        const sanitizedPath = sanitizePath(basePath);
-        
-        // Убираем начальный / если есть
-        const cleanPath = sanitizedPath.startsWith('/') ? sanitizedPath.substring(1) : sanitizedPath;
-        
-        // Вместо проверки папок через HEAD, будем искать файлы
-        // Предположим, что у нас максимум 10 сезонов
-        const maxSeasons = 10;
-        const foundSeasons = [];
-        
-        // Проверяем наличие season_info.txt для каждого возможного сезона
-        const checkPromises = [];
-        for (let i = 1; i <= maxSeasons; i++) {
-            const seasonPath = `${cleanPath}${i}/season_info.txt`;
-            checkPromises.push(
-                fetch(seasonPath, { method: "HEAD" })
-                    .then((response) => response.ok ? i : 0)
-                    .catch(() => 0)
-            );
-        }
-        
-        const results = await Promise.all(checkPromises);
-        
-        // Считаем найденные сезоны
-        let count = 0;
-        for (let i = 0; i < results.length; i++) {
-            if (results[i] > 0) {
-                count++;
-            } else {
-                // Если нашли разрыв, останавливаемся
-                break;
-            }
-        }
-        
-        return count;
-    } catch (error) {
-        console.error("Error counting folders:", error);
-        return 0;
-    }
 };
 
 const FileManager = {
@@ -559,47 +510,6 @@ const FileManager = {
           content: "# Ошибка\n\nНе удалось загрузить гайды. Попробуйте позже.",
         },
       ];
-    }
-  },
-
-  async getGuideContent(seasonId, guideId) {
-    try {
-      const sanitizedSeason = sanitizePath(seasonId);
-      const sanitizedGuide = sanitizePath(guideId);
-
-      const content = await fetchWithCache(
-        `data/seasons/${sanitizedSeason}/guides/${sanitizedGuide}.txt`,
-      );
-
-      const lines = content.split("\n");
-
-      if (lines.length <= 1 && lines[0].trim() === "") {
-        return {
-          title: guideId
-            .replace(/_/g, " ")
-            .replace(/\b\w/g, (l) => l.toUpperCase()),
-          content: "Содержание гайда отсутствует или находится в разработке.",
-        };
-      }
-
-      return {
-        title: guideId
-          .replace(/_/g, " ")
-          .replace(/\b\w/g, (l) => l.toUpperCase()),
-        content: lines.slice(1).join("\n").trim() || "Содержание отсутствует.",
-      };
-    } catch (error) {
-      console.error(
-        `Error getting guide content for ${seasonId}/${guideId}:`,
-        error,
-      );
-      return {
-        title: guideId
-          .replace(/_/g, " ")
-          .replace(/\b\w/g, (l) => l.toUpperCase()),
-        content:
-          "Не удалось загрузить содержание гайда. Пожалуйста, попробуйте позже.",
-      };
     }
   },
 

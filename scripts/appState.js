@@ -1,5 +1,4 @@
 // appState.js
-import { sanitizeHTML } from "./utils.js";
 
 const AppState = (() => {
   let state = {
@@ -21,31 +20,29 @@ const AppState = (() => {
     return true;
   };
 
+  const triggerEvent = (type, data) => {
+    const handlers = state.eventListeners.get(type);
+    if (handlers) {
+      handlers.forEach((handler) => handler(data));
+    }
+  };
+
   return {
     getState: (key) => (key ? state[key] : { ...state }),
     setState: (updates) => {
       const newState = { ...state, ...updates };
       if (validateState(newState)) {
         state = newState;
+        triggerEvent("stateChange", { ...state });
         return true;
       }
       return false;
     },
     addEventListener: (type, handler) => {
       if (!state.eventListeners.has(type)) {
-        state.eventListeners.set(type, new Set());
+        state.eventListeners.set(type, []);
       }
-      state.eventListeners.get(type).add(handler);
-    },
-    removeEventListener: (type, handler) => {
-      if (state.eventListeners.has(type)) {
-        state.eventListeners.get(type).delete(handler);
-      }
-    },
-    triggerEvent: (type, data) => {
-      if (state.eventListeners.has(type)) {
-        state.eventListeners.get(type).forEach((handler) => handler(data));
-      }
+      state.eventListeners.get(type).push(handler);
     },
   };
 })();

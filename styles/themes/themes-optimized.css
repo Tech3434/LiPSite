@@ -176,26 +176,6 @@ body.theme-active .btn-state-inactive:hover {
   background: color-mix(in srgb, var(--theme-secondary) 30%, transparent) !important;
 }
 
-/* Стили для таблички гайдов в теме */
-body.theme-active .guide-table-row {
-  background: linear-gradient(90deg, 
-    color-mix(in srgb, var(--theme-secondary) 20%, transparent),
-    color-mix(in srgb, var(--theme-secondary) 10%, transparent)
-  ) !important;
-  border-bottom-color: color-mix(in srgb, var(--theme-text) 5%, transparent) !important;
-}
-
-body.theme-active .guide-table-row:hover {
-  background: linear-gradient(90deg, 
-    color-mix(in srgb, var(--theme-secondary) 30%, transparent),
-    color-mix(in srgb, var(--theme-secondary) 20%, transparent)
-  ) !important;
-}
-
-body.theme-active .guide-description {
-  border-left-color: color-mix(in srgb, var(--theme-accent) 30%, transparent) !important;
-}
-
 /* СТИЛИ ДЛЯ НОВЫХ ЭЛЕМЕНТОВ В ТЕМЕ */
 
 /* Изображения в теме */

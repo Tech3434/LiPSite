@@ -111,24 +111,23 @@ class SeasonUI {
 
     if (previousSeason === seasonId) return;
 
-    // Плавно скрываем текущий контент если он есть
-    if (previousSeason && previousSeason !== "official") {
-      await fadeElement(this.app.elements.seasonContent, "out", 200);
-    } else if (previousSeason === "official") {
-      await fadeElement(this.app.elements.officialInfo, "out", 200);
-    }
-
     // Сначала обновляем кнопки сезонов
     this.updateSeasonButtons(seasonId);
 
     if (seasonId === "official") {
+      // === ПЕРЕХОД НА ИНФОРМАЦИЮ ===
+      // Фейдим только если был сезон (не official)
+      if (previousSeason && previousSeason !== "official") {
+        await fadeElement(this.app.elements.seasonContent, "out", 200);
+      }
+
       this.app.elements.headerTitle.textContent = "Информация";
       this.app.theme.removeTheme();
 
       AppState.setState({
         currentOpenGuide: null,
         currentMode: "story",
-        currentSeason: "official", // ВАЖНО: устанавливаем явно "official"
+        currentSeason: "official",
         currentAct: null,
         currentTheme: null,
         isTransitioning: false,
@@ -140,7 +139,6 @@ class SeasonUI {
 
       await fadeElement(this.app.elements.officialInfo, "in", 300);
 
-      // После смены на официальную инфо, обновляем кнопки режимов
       if (
         this.app.contentUI &&
         typeof this.app.contentUI.updateModeButtons === "function"
@@ -152,40 +150,52 @@ class SeasonUI {
       return;
     }
 
-    // Переход к сезону
+    // === ПЕРЕХОД НА СЕЗОН ===
+
+    // Важно: НЕ фейдим officialInfo сразу! Оставляем его видимым
+    // на время загрузки данных, чтобы не было пустой страницы.
+    // Cross-fade сделаем в конце.
+    const comingFromOfficial = previousSeason === "official";
+
+    if (!comingFromOfficial) {
+      // Если переключаемся между сезонами — фейдим текущий
+      if (previousSeason && previousSeason !== "official") {
+        await fadeElement(this.app.elements.seasonContent, "out", 200);
+      }
+      // Если officialInfo был видим (напр. загрузка с URL-якоря) — скрываем
+      if (!this.app.elements.officialInfo.classList.contains("hidden")) {
+        await fadeElement(this.app.elements.officialInfo, "out", 150);
+        this.app.elements.officialInfo.classList.add("hidden");
+      }
+    }
+    // Если из official — НЕ фейдим, оставляем видимым для cross-fade
+
+    // Загружаем инфу о сезоне
     const seasonInfo = await this.fileManager.getSeasonInfo(seasonId);
     if (seasonInfo) {
       this.app.elements.headerTitle.textContent = seasonInfo.title;
     }
 
-    if (!this.app.elements.officialInfo.classList.contains("hidden")) {
-      await fadeElement(this.app.elements.officialInfo, "out", 200);
-      this.app.elements.officialInfo.classList.add("hidden");
-    }
-
     AppState.setState({
       currentSeason: seasonId,
-      currentAct: null, // Сбрасываем выбранный акт при смене сезона
+      currentAct: null,
       isTransitioning: false,
     });
 
-    // OPTIMIZE: Сначала скрываем ВСЕ секции режимов, чтобы не было
-    // остаточного контента от предыдущего режима при возврате из "Информация"
+    // Скрываем все секции режимов
     ["story", "players", "guides"].forEach((mode) => {
       const section = document.getElementById(`${mode}-content`);
       if (section) section.classList.add("hidden");
     });
 
-    // OPTIMIZE: Загружаем ВСЕ данные ДО того, как показать seasonContent.
-    // Это устраняет проблему "сначала макет, потом контент".
+    // Загружаем ВСЕ данные ДО показа сезона
     await this.app.content.loadSeasonData(seasonId);
 
-    // Теперь, когда всё готово — показываем сезон с контентом
+    // Готовим seasonContent к показу
     this.app.elements.seasonContent.classList.remove("hidden");
     this.app.elements.seasonContent.style.opacity = "0";
 
-    // BUGFIX: После загрузки данных — показываем секцию текущего режима,
-    // скрываем остальные (важно при возврате из "Информация")
+    // Показываем секцию текущего режима
     const currentMode = AppState.getState("currentMode");
     ["story", "players", "guides"].forEach((mode) => {
       const section = document.getElementById(`${mode}-content`);
@@ -199,32 +209,31 @@ class SeasonUI {
       }
     });
 
-    // Параллельно: анимация появления + обновление кнопок
-    await Promise.all([
-      fadeElement(this.app.elements.seasonContent, "in", 300),
-      (async () => {
-        // ВАЖНО: После загрузки данных сезона обновляем кнопки режимов
-        if (
-          this.app.contentUI &&
-          typeof this.app.contentUI.updateModeButtons === "function"
-        ) {
-          this.app.contentUI.updateModeButtons();
-        }
+    if (comingFromOfficial) {
+      // Cross-fade: officialInfo фейдится OUT одновременно
+      // с fadeIn сезона — плавный переход без пустой страницы
+      await Promise.all([
+        fadeElement(this.app.elements.officialInfo, "out", 200).then(() => {
+          this.app.elements.officialInfo.classList.add("hidden");
+        }),
+        fadeElement(this.app.elements.seasonContent, "in", 300),
+      ]);
+    } else {
+      // Обычный fadeIn сезона (предыдущий уже скрыт выше)
+      await fadeElement(this.app.elements.seasonContent, "in", 300);
+    }
 
-        this.app.navigation.updateURL();
-      })(),
-    ]);
+    // Обновляем кнопки и URL
+    if (
+      this.app.contentUI &&
+      typeof this.app.contentUI.updateModeButtons === "function"
+    ) {
+      this.app.contentUI.updateModeButtons();
+    }
+
+    this.app.navigation.updateURL();
   }
 
-  showLoading() {
-    if (!this.app.elements.loadingIndicator) return;
-    this.app.elements.loadingIndicator.classList.remove("hidden");
-  }
-
-  hideLoading() {
-    if (!this.app.elements.loadingIndicator) return;
-    this.app.elements.loadingIndicator.classList.add("hidden");
-  }
 }
 
 export default SeasonUI;

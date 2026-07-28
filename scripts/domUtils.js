@@ -37,21 +37,21 @@ export const parseMarkdownToHTML = (text, textColor = null) => {
     // Заголовки
     if (trimmedLine.startsWith("# ")) {
       result.push(
-        `<h4 class="text-4xl font-bold mt-8 mb-4"${colorStyle}>${trimmedLine.substring("# ".length)}</h4>`,
+        `<h4 class="text-4xl font-bold mt-8 mb-4"${colorStyle}>${processInlineMarkdown(trimmedLine.substring("# ".length))}</h4>`,
       );
     } else if (trimmedLine.startsWith("## ")) {
       result.push(
-        `<h5 class="text-3xl font-bold mt-6 mb-3"${colorStyle}>${trimmedLine.substring("## ".length)}</h5>`,
+        `<h5 class="text-3xl font-bold mt-6 mb-3"${colorStyle}>${processInlineMarkdown(trimmedLine.substring("## ".length))}</h5>`,
       );
     } else if (trimmedLine.startsWith("### ")) {
       result.push(
-        `<h6 class="text-2xl font-bold mt-4 mb-2"${colorStyle}>${trimmedLine.substring("### ".length)}</h6>`,
+        `<h6 class="text-2xl font-bold mt-4 mb-2"${colorStyle}>${processInlineMarkdown(trimmedLine.substring("### ".length))}</h6>`,
       );
     }
     // Субтекст
     else if (trimmedLine.startsWith("-# ")) {
       result.push(
-        `<p class="text-sm opacity-75 mt-2 mb-3 italic"${colorStyle}>${trimmedLine.substring(3)}</p>`,
+        `<p class="text-sm opacity-75 mt-2 mb-3 italic"${colorStyle}>${processInlineMarkdown(trimmedLine.substring(3))}</p>`,
       );
     }
     // Списки
@@ -91,12 +91,6 @@ export const parseMarkdownToHTML = (text, textColor = null) => {
   // Шаг 3: Объединяем результат
   let html = result.join("\n");
 
-  // Шаг 4: Обрабатываем спойлеры
-  html = html.replace(/\|\|(.+?)\|\|/g, (match, content) => {
-    const processedContent = processInlineFormatting(content);
-    return `<span class="spoiler bg-gray-800 text-gray-800 hover:text-gray-100 px-1 rounded cursor-pointer transition-colors duration-200" onclick="this.classList.toggle('revealed')">${processedContent}</span>`;
-  });
-
   return html;
 };
 
@@ -128,6 +122,12 @@ const processInlineMarkdown = (text) => {
 
   // Затем обрабатываем остальное форматирование
   result = processInlineFormatting(result);
+
+  // Обрабатываем спойлеры ||текст||
+  result = result.replace(/\|\|(.+?)\|\|/g, (match, content) => {
+    const processedContent = processInlineFormatting(content);
+    return `<span class="spoiler bg-gray-800 text-gray-800 hover:text-gray-100 px-1 rounded cursor-pointer transition-colors duration-200" onclick="this.classList.toggle('revealed')">${processedContent}</span>`;
+  });
 
   return result;
 };
@@ -302,17 +302,17 @@ const processMarkdownInCollapsible = (text, blockMap = {}) => {
     // Заголовки
     if (trimmedLine.startsWith("# ")) {
       result.push(
-        `<h4 class="text-2xl font-bold mt-4 mb-2">${trimmedLine.substring("# ".length)}</h4>`,
+        `<h4 class="text-2xl font-bold mt-4 mb-2">${processInlineMarkdown(trimmedLine.substring("# ".length))}</h4>`,
       );
       continue;
     } else if (trimmedLine.startsWith("## ")) {
       result.push(
-        `<h5 class="text-xl font-bold mt-3 mb-2">${trimmedLine.substring("## ".length)}</h5>`,
+        `<h5 class="text-xl font-bold mt-3 mb-2">${processInlineMarkdown(trimmedLine.substring("## ".length))}</h5>`,
       );
       continue;
     } else if (trimmedLine.startsWith("### ")) {
       result.push(
-        `<h6 class="text-lg font-bold mt-2 mb-1">${trimmedLine.substring("### ".length)}</h6>`,
+        `<h6 class="text-lg font-bold mt-2 mb-1">${processInlineMarkdown(trimmedLine.substring("### ".length))}</h6>`,
       );
       continue;
     }
@@ -320,7 +320,7 @@ const processMarkdownInCollapsible = (text, blockMap = {}) => {
     // Субтекст
     if (trimmedLine.startsWith("-# ")) {
       result.push(
-        `<p class="text-sm opacity-75 mt-1 mb-2 italic">${trimmedLine.substring(3)}</p>`,
+        `<p class="text-sm opacity-75 mt-1 mb-2 italic">${processInlineMarkdown(trimmedLine.substring(3))}</p>`,
       );
       continue;
     }
@@ -349,29 +349,9 @@ const processMarkdownInCollapsible = (text, blockMap = {}) => {
     // Восстанавливаем специальные блоки
     line = restoreProcessedBlocks(line, blockMap);
 
-    // Обрабатываем обычные ссылки [текст](url)
-    line = line.replace(
-      /\[([^\]]+)\]\(([^)]+)\)/g,
-      (match, linkText, linkUrl) => {
-        const processedLinkText = processInlineFormatting(linkText);
-        const isLocalUrl = linkUrl.startsWith("#");
-
-        if (isLocalUrl) {
-          return `<a href="${linkUrl}" class="link-masked text-link hover:text-link-hover visited:text-link-visited underline local-link" data-local-href="${linkUrl.substring(1)}">${processedLinkText}</a>`;
-        } else {
-          return `<a href="${linkUrl}" class="link-masked text-link hover:text-link-hover visited:text-link-visited underline" target="_blank" rel="noopener noreferrer">${processedLinkText}</a>`;
-        }
-      },
-    );
-
-    // Обрабатываем inline форматирование
-    line = processInlineFormatting(line);
-
-    // Обрабатываем спойлеры
-    line = line.replace(/\|\|(.+?)\|\|/g, (match, content) => {
-      const processedContent = processInlineFormatting(content);
-      return `<span class="spoiler bg-gray-800 text-gray-800 hover:text-gray-100 px-1 rounded cursor-pointer transition-colors duration-200" onclick="this.classList.toggle('revealed')">${processedContent}</span>`;
-    });
+    // UNIFIED: Используем ту же функцию processInlineMarkdown,
+    // которая обрабатывает ссылки, форматирование и спойлеры
+    line = processInlineMarkdown(line);
 
     result.push(`<p class="my-1">${line}</p>`);
   }
