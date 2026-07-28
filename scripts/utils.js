@@ -13,9 +13,37 @@ export function normalizeImagePath(imagePath) {
   if (!imagePath) return imagePath;
   const clean = imagePath.trim();
   if (clean.startsWith("http://") || clean.startsWith("https://")) return clean;
-  if (clean.startsWith("/")) return "." + clean;
-  if (clean.startsWith("./")) return clean;
-  return "./" + clean;
+
+  // Определяем базовый путь из <base> или из URL страницы (для GitHub Pages)
+  const base = getBasePath();
+
+  if (clean.startsWith("/")) {
+    // Абсолютный путь: /images/x.png → base + images/x.png
+    return base + clean.substring(1);
+  }
+  if (clean.startsWith("./")) {
+    // Относительный путь: ./images/x.png → base + images/x.png
+    return base + clean.substring(2);
+  }
+  // Путь без префикса: images/x.png → base + images/x.png
+  return base + clean;
+}
+
+function getBasePath() {
+  // Сначала проверяем <base href="...">
+  const baseEl = document.querySelector('base');
+  const baseHref = baseEl?.getAttribute('href');
+  if (baseHref && baseHref !== '/' && baseHref !== './' && baseHref !== '.') {
+    // Используем base (например /LiPSite/) для корректного resolve
+    return baseHref;
+  }
+  // Определяем по pathname: если путь содержит /LiPSite/, используем его
+  const pathname = window.location.pathname;
+  const match = pathname.match(/^\/([^/]+)\//);
+  if (match && match[1] !== '') {
+    return '/' + match[1] + '/';
+  }
+  return './';
 }
 
 export const validateUrl = (url) => {

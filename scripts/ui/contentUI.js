@@ -41,6 +41,46 @@ class ContentUI {
         });
       }
     });
+
+    // Делегирование событий для кнопок открытия гайдов — работает даже при восстановлении из кэша
+    this.app.elements.guidesGrid.addEventListener("click", (e) => {
+      const btn = e.target.closest(".open-guide-btn");
+      if (!btn) return;
+
+      const guideId = btn.dataset.guideId;
+      if (!guideId) return;
+
+      // Ищем гайд в состоянии
+      const state = AppState.getState();
+      const guidesGrid = this.app.elements.guidesGrid;
+
+      // Пытаемся найти объект гайда по data-guide-id из карточки
+      const card = btn.closest("[data-guide-id]");
+      if (!card) return;
+
+      const cardGuideId = card.dataset.guideId;
+
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Загрузка...';
+      btn.disabled = true;
+
+      // Загружаем гайды и находим нужный
+      this.fileManager.getGuidesForSeason(state.currentSeason)
+        .then((guides) => {
+          const guide = guides.find((g) => g.id === cardGuideId);
+          if (guide) {
+            return this.app.guideUI.openGuideModal(guide);
+          }
+        })
+        .catch((err) => {
+          console.error("Error opening guide:", err);
+        })
+        .finally(() => {
+          setTimeout(() => {
+            btn.innerHTML = '<i class="fas fa-external-link-alt mr-2"></i> Открыть';
+            btn.disabled = false;
+          }, 2000);
+        });
+    });
   }
 
   async selectContentMode(mode) {
@@ -390,41 +430,7 @@ class ContentUI {
         card.appendChild(contentContainer);
         guidesGrid.appendChild(card);
 
-        button.addEventListener("click", async (e) => {
-          e.preventDefault();
-          e.stopPropagation();
 
-          const originalIcon = icon.cloneNode(true);
-          const originalText = buttonText.cloneNode(true);
-          button.innerHTML = "";
-          const spinnerIcon = createElement("i", {
-            classes: "fas fa-spinner fa-spin mr-2",
-          });
-          const loadingText = document.createTextNode(" Загрузка...");
-          button.appendChild(spinnerIcon);
-          button.appendChild(loadingText);
-          button.disabled = true;
-
-          try {
-            await this.app.guideUI.openGuideModal(guide);
-          } catch (error) {
-            console.error("Error opening guide:", error);
-            button.innerHTML = "";
-            const errorIcon = createElement("i", {
-              classes: "fas fa-exclamation-triangle mr-2",
-            });
-            const errorText = document.createTextNode(" Ошибка");
-            button.appendChild(errorIcon);
-            button.appendChild(errorText);
-          } finally {
-            setTimeout(() => {
-              button.innerHTML = "";
-              button.appendChild(originalIcon);
-              button.appendChild(originalText);
-              button.disabled = false;
-            }, 2000);
-          }
-        });
       });
 
       // OPTIMIZE: Сохраняем в кэш ПОСЛЕ построения всех карточек
