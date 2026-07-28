@@ -133,6 +133,7 @@ const processInlineMarkdown = (text) => {
 };
 
 // Предварительная обработка многострочных блоков
+// Поддерживает произвольную вложенность спецблоков
 const preprocessMultilineBlocks = (text) => {
   const blocks = {};
   let blockIndex = 0;
@@ -141,87 +142,90 @@ const preprocessMultilineBlocks = (text) => {
 
   const isSpecialChar = (char) => ["#", "$", "%", "?"].includes(char);
 
-  while (i < text.length) {
-    // Ищем начало специального блока
-    if (text[i] === "[" && i + 1 < text.length && isSpecialChar(text[i + 1])) {
-      const start = i;
-      const type = text[i + 1];
-      i += 2; // Пропускаем "[x"
+  // Вспомогательная функция для извлечения одного спецблока начиная с позиции i+1
+  // (т.е. i указывает на '[', i+1 — на тип блока)
+  // Записывает блок в blocks и возвращает { blockId, endIndex }
+  const extractBlock = (startBracketIdx) => {
+    let ci = startBracketIdx + 2; // пропуск '[x'
+    const type = text[ci - 1];
+    let content = "";
+    let url = "";
+    let bracketDepth = 0;
+    let parenDepth = 0;
+    let inUrl = false;
+    let foundUrlEnd = false;
 
-      let content = "";
-      let url = "";
-      let bracketDepth = 0;
-      let parenDepth = 0;
-      let inUrl = false;
-      let foundUrlEnd = false;
+    while (ci < text.length && !foundUrlEnd) {
+      const char = text[ci];
 
-      // Собираем содержимое блока
-      while (i < text.length && !foundUrlEnd) {
-        const char = text[i];
-
-        if (!inUrl) {
-          // Если нашли ']' на верхнем уровне вложенности
-          if (char === "]" && bracketDepth === 0) {
-            i++; // Пропускаем ']'
-            // Теперь ищем '(' для URL
-            while (i < text.length && text[i] !== "(" && text[i] !== "\n") {
-              i++;
-            }
-            if (text[i] === "(") {
-              i++; // Пропускаем '('
-              inUrl = true;
-              continue;
-            } else {
-              // Нет URL, заканчиваем
-              foundUrlEnd = true;
-              break;
-            }
-          }
-
-          // Учитываем вложенные скобки
-          if (char === "[") bracketDepth++;
-          if (char === "]") bracketDepth--;
-
-          content += char;
-          i++;
-        } else {
-          // Собираем URL (без обработки маркдауна внутри)
-          if (char === ")" && parenDepth === 0) {
-            // URL завершен
+      if (!inUrl) {
+        if (char === "]" && bracketDepth === 0) {
+          ci++;
+          while (ci < text.length && text[ci] !== "(" && text[ci] !== "\n") ci++;
+          if (ci < text.length && text[ci] === "(") {
+            ci++;
+            inUrl = true;
+            continue;
+          } else {
             foundUrlEnd = true;
-            i++; // Пропускаем ')'
             break;
           }
-
-          // Учитываем вложенные скобки в URL (но не обрабатываем маркдаун)
-          if (char === "(") parenDepth++;
-          if (char === ")") parenDepth--;
-
-          url += char;
-          i++;
         }
+
+        // Вложенный спецблок в контенте
+        if (char === "[" && ci + 1 < text.length && isSpecialChar(text[ci + 1])) {
+          const nestedId = extractBlock(ci);
+          content += nestedId.blockId;
+          ci = nestedId.endIndex;
+          continue;
+        }
+
+        if (char === "[") bracketDepth++;
+        if (char === "]") bracketDepth--;
+
+        content += char;
+        ci++;
+      } else {
+        // Вложенный спецблок в URL
+        if (char === "[" && ci + 1 < text.length && isSpecialChar(text[ci + 1])) {
+          const nestedId = extractBlock(ci);
+          url += nestedId.blockId;
+          ci = nestedId.endIndex;
+          continue;
+        }
+
+        if (char === ")" && parenDepth === 0) {
+          foundUrlEnd = true;
+          ci++;
+          break;
+        }
+
+        if (char === "(") parenDepth++;
+        if (char === ")") parenDepth--;
+
+        url += char;
+        ci++;
       }
+    }
 
-      const blockId = `__BLOCK_${blockIndex}__`;
-      blockIndex++;
+    const blockId = `__BLOCK_${blockIndex}__`;
+    blockIndex++;
+    blocks[blockId] = { type, content, url };
+    return { blockId, endIndex: ci };
+  };
 
-      // Сохраняем блок
-      blocks[blockId] = {
-        type: type,
-        content: content,
-        url: url,
-      };
-
-      // Заменяем блок на маркер
-      result += blockId;
+  while (i < text.length) {
+    if (text[i] === "[" && i + 1 < text.length && isSpecialChar(text[i + 1])) {
+      const extracted = extractBlock(i);
+      result += extracted.blockId;
+      i = extracted.endIndex;
     } else {
-      // Просто добавляем символ
       result += text[i];
       i++;
     }
   }
 
-  return { text: result, blocks: blocks };
+  return { text: result, blocks };
 };
 
 // Восстановление обработанных блоков
@@ -234,9 +238,11 @@ const restoreProcessedBlocks = (text, blockMap) => {
         blockData.type,
         blockData.content,
         blockData.url,
+        blockMap,
       );
-      // Простая замена
-      result = result.replace(blockId, replacement);
+      // --- FIX BUG #2: Заменяем ВСЕ вхождения маркера ---
+      const regex = new RegExp(blockId.replace(/[-\/\^$*+?.()|[\]{}]/g, "\$&"), "g");
+      result = result.replace(regex, replacement);
     }
   }
 
@@ -267,16 +273,12 @@ const processMultilineText = (text) => {
 };
 
 // Обработка маркдауна внутри collapsible секций
-const processMarkdownInCollapsible = (text) => {
+// blockMap — карта блоков из внешнего парсера (чтобы не создавать дубликаты маркеров)
+const processMarkdownInCollapsible = (text, blockMap = {}) => {
   if (!text) return "";
 
-  // Шаг 1: Предварительная обработка специальных блоков внутри collapsible
-  const processedData = preprocessMultilineBlocks(text);
-  let processedText = processedData.text;
-  const blockMap = processedData.blocks;
-
-  // Шаг 2: Разделяем на строки
-  const lines = processedText.split("\n");
+  // Разделяем на строки и обрабатываем как обычный текст
+  const lines = text.split("\n");
   let result = [];
 
   for (let i = 0; i < lines.length; i++) {
@@ -288,6 +290,62 @@ const processMarkdownInCollapsible = (text) => {
       continue;
     }
 
+    // Разделители
+    if (trimmedLine.startsWith("-----")) {
+      result.push('<hr class="full-divider my-6">');
+      continue;
+    } else if (trimmedLine.startsWith("---")) {
+      result.push('<hr class="partial-divider my-6 mx-16">');
+      continue;
+    }
+
+    // Заголовки
+    if (trimmedLine.startsWith("# ")) {
+      result.push(
+        `<h4 class="text-2xl font-bold mt-4 mb-2">${trimmedLine.substring("# ".length)}</h4>`,
+      );
+      continue;
+    } else if (trimmedLine.startsWith("## ")) {
+      result.push(
+        `<h5 class="text-xl font-bold mt-3 mb-2">${trimmedLine.substring("## ".length)}</h5>`,
+      );
+      continue;
+    } else if (trimmedLine.startsWith("### ")) {
+      result.push(
+        `<h6 class="text-lg font-bold mt-2 mb-1">${trimmedLine.substring("### ".length)}</h6>`,
+      );
+      continue;
+    }
+
+    // Субтекст
+    if (trimmedLine.startsWith("-# ")) {
+      result.push(
+        `<p class="text-sm opacity-75 mt-1 mb-2 italic">${trimmedLine.substring(3)}</p>`,
+      );
+      continue;
+    }
+
+    // Списки
+    if (trimmedLine.startsWith("– ")) {
+      let listItems = [trimmedLine.substring(2)];
+      let j = i + 1;
+      while (j < lines.length && lines[j].trim().startsWith("– ")) {
+        listItems.push(lines[j].trim().substring(2));
+        j++;
+      }
+      i = j - 1;
+
+      const listHTML = listItems
+        .map(
+          (item) =>
+            `<li class="mb-1 pl-2">${processInlineMarkdown(item)}</li>`,
+        )
+        .join("");
+
+      result.push(`<ul class="list-disc pl-6 mb-3">${listHTML}</ul>`);
+      continue;
+    }
+
     // Восстанавливаем специальные блоки
     line = restoreProcessedBlocks(line, blockMap);
 
@@ -295,17 +353,12 @@ const processMarkdownInCollapsible = (text) => {
     line = line.replace(
       /\[([^\]]+)\]\(([^)]+)\)/g,
       (match, linkText, linkUrl) => {
-        // Обрабатываем форматирование в тексте ссылки, но не в URL
         const processedLinkText = processInlineFormatting(linkText);
-
-        // Проверяем, локальный ли это URL (начинается с #)
         const isLocalUrl = linkUrl.startsWith("#");
 
         if (isLocalUrl) {
-          // Для локальных ссылок - без target="_blank"
           return `<a href="${linkUrl}" class="link-masked text-link hover:text-link-hover visited:text-link-visited underline local-link" data-local-href="${linkUrl.substring(1)}">${processedLinkText}</a>`;
         } else {
-          // Для внешних ссылок открываем в новой вкладке
           return `<a href="${linkUrl}" class="link-masked text-link hover:text-link-hover visited:text-link-visited underline" target="_blank" rel="noopener noreferrer">${processedLinkText}</a>`;
         }
       },
@@ -320,19 +373,14 @@ const processMarkdownInCollapsible = (text) => {
       return `<span class="spoiler bg-gray-800 text-gray-800 hover:text-gray-100 px-1 rounded cursor-pointer transition-colors duration-200" onclick="this.classList.toggle('revealed')">${processedContent}</span>`;
     });
 
-    result.push(line);
-
-    // Добавляем <br> для переносов строк
-    if (i < lines.length - 1) {
-      result.push("<br>");
-    }
+    result.push(`<p class="my-1">${line}</p>`);
   }
 
-  return result.join("");
+  return result.join("\n");
 };
 
 // Создание HTML для специальных блоков
-const createSpecialBlockHTML = (type, content, url) => {
+const createSpecialBlockHTML = (type, content, url, blockMap = {}) => {
   // Обрабатываем содержимое блока (content) с форматированием
   const processedContent = processMultilineText(content);
 
@@ -341,15 +389,19 @@ const createSpecialBlockHTML = (type, content, url) => {
 
   switch (type) {
     case "#": // Collapsible
-      const collapsibleId = `collapsible-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+      // --- FIX BUG #3: Используем глобальный счётчик для уникальных ID ---
+      if (typeof window.__collapsibleCounter__ === "undefined") {
+        window.__collapsibleCounter__ = 0;
+      }
+      const collapsibleId = `collapsible-${window.__collapsibleCounter__++}-${Math.random().toString(36).substring(2, 9)}`;
 
       // Для заголовка collapsible обрабатываем форматирование
       const collapsibleTitle = content
         ? processInlineFormatting(content.replace(/\n/g, " "))
         : "";
 
-      // ВАЖНО: для содержимого collapsible обрабатываем маркдаун полностью
-      const collapsibleContent = processMarkdownInCollapsible(processedUrl);
+      // ВАЖНО: для содержимого collapsible обрабатываем маркдаун полностью, передаём blockMap
+      const collapsibleContent = processMarkdownInCollapsible(processedUrl, blockMap);
 
       return `<div class="collapsible-inline my-3 inline-block w-full" data-collapsible-id="${collapsibleId}">
 <button type="button" 
@@ -469,52 +521,58 @@ window.toggleInlineCollapsible = function (id) {
     ? button.querySelector(".collapsible-arrow-inline")
     : null;
 
-  if (content.style.maxHeight && content.style.maxHeight !== "0px") {
-    // Закрываем
+  const isOpen = content.style.maxHeight && content.style.maxHeight !== "0px";
+
+  if (isOpen) {
+    // Закрываем — сначала закрываем все вложенные, чтобы scrollHeight был корректным
+    const nestedContents = content.querySelectorAll(".collapsible-content-inline");
+    nestedContents.forEach((nested) => {
+      if (nested.style.maxHeight && nested.style.maxHeight !== "0px") {
+        nested.style.maxHeight = "0";
+        nested.style.marginTop = "0";
+        nested.style.marginBottom = "0";
+        const nestedBtn = nested.closest(".collapsible-inline")?.querySelector(".collapsible-toggle-inline");
+        const nestedArrow = nestedBtn?.querySelector(".collapsible-arrow-inline");
+        if (nestedArrow) nestedArrow.style.transform = "rotate(0deg)";
+        if (nestedBtn) nestedBtn.classList.remove("collapsible-active");
+      }
+    });
+
+    // Теперь закрываем родительский
     content.style.maxHeight = "0";
     content.style.marginTop = "0";
     content.style.marginBottom = "0";
     if (arrow) arrow.style.transform = "rotate(0deg)";
     if (button) button.classList.remove("collapsible-active");
   } else {
-    // Открываем
-    content.style.maxHeight = content.scrollHeight + "px";
+    // Открываем — сначала временно делаем overflow: visible для корректного scrollHeight
+    const parentContent = content.parentElement.closest(".collapsible-content-inline");
+    if (parentContent) {
+      parentContent.style.overflow = "visible";
+    }
+
+    // Принудительно пересчитываем scrollHeight
+    const scrollHeight = content.scrollHeight;
+    content.style.maxHeight = scrollHeight + "px";
     content.style.marginTop = "0.25rem";
     content.style.marginBottom = "0.25rem";
     if (arrow) arrow.style.transform = "rotate(180deg)";
     if (button) button.classList.add("collapsible-active");
+
+    // После анимации закрываем overflow у родителя
+    setTimeout(() => {
+      if (parentContent) {
+        parentContent.style.overflow = "hidden";
+      }
+    }, 350);
   }
 };
 
 // Функция для инициализации всех collapsible sections
 export const initCollapsibles = (container = document) => {
-  // Удаляем старые обработчики, если есть
-  const buttons = container.querySelectorAll(".collapsible-toggle-inline");
-  buttons.forEach((button) => {
-    // Создаем новый обработчик
-    const newButton = button.cloneNode(true);
-    button.parentNode.replaceChild(newButton, button);
-  });
-
-  // Добавляем новые обработчики
-  container.querySelectorAll(".collapsible-toggle-inline").forEach((button) => {
-    const targetId =
-      button.getAttribute("data-collapsible-target") ||
-      button
-        .closest(".collapsible-inline")
-        ?.getAttribute("data-collapsible-id");
-
-    if (targetId) {
-      button.addEventListener("click", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        window.toggleInlineCollapsible(targetId);
-      });
-
-      // Удаляем inline onclick, если он есть
-      button.removeAttribute("onclick");
-    }
-  });
+  // collapsible обработчики работают через глобальное делегирование событий,
+  // поэтому здесь ничего делать не нужно.
+  // Этот метод нужен только для синхронизации элементов внутри контейнера.
 };
 
 export const createElement = (tag, options = {}) => {
@@ -530,10 +588,6 @@ export const createElement = (tag, options = {}) => {
 
   if (options.html) {
     element.innerHTML = sanitizeHTML(options.html);
-    // Если есть коллабсибл секции, инициализируем их
-    if (options.html.includes("collapsible-inline")) {
-      setTimeout(() => initCollapsibles(element), 10);
-    }
   }
 
   if (options.attributes) {
@@ -594,15 +648,26 @@ document.addEventListener("DOMContentLoaded", function () {
   document.addEventListener("mouseover", function (e) {
     const tooltip = e.target.closest(".hint-tooltip");
     if (tooltip) {
-      // Если навели на другой элемент, скрываем предыдущий таймер
+      // Если навели на другой элемент — просто обновляем существующий тултип
       if (currentTooltipElement !== tooltip) {
-        clearTimeout(tooltipTimeout);
-        hideTooltip();
         currentTooltipElement = tooltip;
 
-        tooltipTimeout = setTimeout(() => {
-          showTooltip(tooltip, e.clientX, e.clientY);
-        }, 200);
+        // Если тултип уже есть — обновляем текст и позицию
+        if (tooltipInstance) {
+          const tooltipText = tooltip.getAttribute("data-tooltip");
+          if (tooltipText) {
+            const formattedText = tooltipText.replace(/<br>/g, "\n");
+            tooltipInstance.textContent = formattedText;
+            updateTooltipPosition(e.clientX, e.clientY);
+            tooltipInstance.style.opacity = "1";
+          }
+        } else {
+          // Тултита нет — создаём с задержкой
+          clearTimeout(tooltipTimeout);
+          tooltipTimeout = setTimeout(() => {
+            showTooltip(tooltip, e.clientX, e.clientY);
+          }, 200);
+        }
       }
     }
   });
@@ -655,11 +720,18 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 function showTooltip(element, x, y) {
-  hideTooltip();
-
   const tooltipText = element.getAttribute("data-tooltip");
   if (!tooltipText) return;
 
+  // Если тултип уже существует — просто обновляем текст и позицию
+  if (tooltipInstance) {
+    const formattedText = tooltipText.replace(/<br>/g, "\n");
+    tooltipInstance.textContent = formattedText;
+    updateTooltipPosition(x, y);
+    return;
+  }
+
+  // Создаём новый тултип
   tooltipInstance = document.createElement("div");
   tooltipInstance.className =
     "tooltip-popup fixed z-50 px-3 py-2 text-sm bg-gray-900 border border-gray-700 rounded-lg shadow-lg max-w-xs pointer-events-none";
